@@ -73,7 +73,7 @@ class TestMetric:
 
     def test_jit(self):
         class MyMetric(jm.Metric):
-            a: tp.Optional[int] = jm.MetricState.node()
+            a: tp.Optional[int] = to.node()
 
             def __init__(self) -> None:
                 self.a = None

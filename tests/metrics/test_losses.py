@@ -85,70 +85,54 @@ class TestLosses:
 
 class TestAuxLosses:
     def test_basic(self):
-        class MyModule(jm.Module):
-            aux: jnp.ndarray = jm.LossLog.node()
-            some_value: jnp.ndarray = to.node()
-
-            def __init__(self) -> None:
-                self.aux = jnp.array(1.0, jnp.float32)
-                self.some_value = jnp.array(10.0, jnp.float32)
 
         N = 0
 
         @jax.jit
-        def f(module: MyModule, aux_losses: jm.metrics.AuxLosses):
+        def f(aux_losses: jm.metrics.AuxLosses, value):
             nonlocal N
             N += 1
-            loss_logs = module.filter(jm.LossLog).as_logs()
+            loss_logs = {"aux": value}
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
-        module = MyModule()
-
-        loss_logs = module.filter(jm.LossLog).as_logs()
+        loss_logs = {"aux": jnp.array(1.0, jnp.float32)}
         losses = jm.metrics.AuxLosses().reset(loss_logs)
 
-        loss, losses = f(module, losses)
+        value = jnp.array(1.0, jnp.float32)
+        loss, losses = f(losses, value)
         assert N == 1
         assert np.isclose(loss, 1.0)
         assert np.isclose(losses.compute()["aux"], 1.0)
 
-        module = module.replace(aux=jnp.array(0.0, jnp.float32))
-        loss, losses = f(module, losses)
+        value = jnp.array(0.0, jnp.float32)
+        loss, losses = f(losses, value)
 
         assert N == 1
         assert np.isclose(loss, 0.0)
         assert np.isclose(losses.compute()["aux"], 0.5)
 
     def test_named(self):
-        class MyModule(jm.Module):
-            aux: jm.Named[jnp.ndarray] = jm.LossLog.node()
-            some_value: jnp.ndarray = to.node()
-
-            def __init__(self) -> None:
-                self.aux = jm.Named("my_loss", jnp.array(1.0, jnp.float32))
-                self.some_value = jnp.array(10.0, jnp.float32)
 
         N = 0
 
         @jax.jit
-        def f(module: MyModule, aux_losses: jm.metrics.AuxLosses):
+        def f(aux_losses: jm.metrics.AuxLosses, value):
             nonlocal N
             N += 1
-            loss_logs = module.filter(jm.LossLog).as_logs()
+            loss_logs = {"my_loss": value}
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
-        module = MyModule()
-
-        loss_logs = module.filter(jm.LossLog).as_logs()
+        loss_logs = {"my_loss": jnp.array(0.0, jnp.float32)}
         losses = jm.metrics.AuxLosses().reset(loss_logs)
 
-        loss, losses = f(module, losses)
+        value = jnp.array(1.0, jnp.float32)
+        loss, losses = f(losses, value)
         assert N == 1
         assert np.isclose(loss, 1.0)
         assert np.isclose(losses.compute()["my_loss"], 1.0)
 
-        module.aux.value = jnp.array(0.0, jnp.float32)
-        loss, losses = f(module, losses)
+        value = jnp.array(0.0, jnp.float32)
+        loss, losses = f(losses, value)
 
         assert N == 1
         assert np.isclose(loss, 0.0)
