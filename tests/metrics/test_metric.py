@@ -2,9 +2,10 @@ import inspect
 import typing as tp
 
 import jax
-import jax_metrics as jm
 import pytest
 import treeo as to
+
+import jax_metrics as jm
 
 
 class MyMetric(jm.Metric):

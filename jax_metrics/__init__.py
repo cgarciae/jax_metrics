@@ -3,12 +3,12 @@ __version__ = "0.1.0"
 
 from jax_metrics.losses import Loss
 from jax_metrics.metrics import (
+    AuxLosses,
+    AuxMetrics,
     Losses,
     LossesAndMetrics,
     Metric,
     Metrics,
-    AuxLosses,
-    AuxMetrics,
 )
 from jax_metrics.types import Named
 

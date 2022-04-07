@@ -1,6 +1,7 @@
 import jax
 import jax.numpy as jnp
 
+
 # create your pairwise function
 def distance(a, b):
     return jnp.linalg.norm(a - b)
