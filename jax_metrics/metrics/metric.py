@@ -13,7 +13,7 @@ MA = tp.TypeVar("MA", bound="MapArgsMetric")
 Slice = tp.Tuple[tp.Union[int, str], ...]
 
 
-class Metric(to.Tree, to.Immutable):
+class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immutable):
     """
     Encapsulates metric logic and state. Metrics accumulate state between calls such
     that their output value reflect the metric as if calculated on the whole data
