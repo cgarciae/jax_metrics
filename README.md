@@ -16,7 +16,9 @@ JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 * A Keras-like `Loss` abstraction.
 * A `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
 * A `metrics` moduel containing popular metrics.
-* A `losses` and `regularizers` module containing popular losses.## Why JAX Metrics?
+* A `losses` and `regularizers` module containing popular losses.
+
+<!-- ## Why JAX Metrics? -->
 
 ## Installation
 Install using pip:
