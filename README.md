@@ -4,7 +4,7 @@ _A Metrics library for the JAX ecosystem_
 
 #### Main Features
 * Standard metrics that can be used in any JAX project.
-* Pytree-based abstractions that can natively integrate with all JAX APIs and pytree-supporting frameworks (flax.struct, equinox, treex, etc).
+* Pytree abstractions that can natively integrate with all JAX APIs and pytree-supporting frameworks (flax.struct, equinox, treex, etc).
 * Distributed-friendly APIs that make it super easy to synchronize metrics across devices.
 * Automatic accumulation over epochs.
 
