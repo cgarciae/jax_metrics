@@ -5,8 +5,8 @@ import jax.numpy as jnp
 import numpy as np
 import tensorflow.keras as tfk
 
-import metrix as mtx
-from metrix import types, utils
+import jax_metrics as jm
+from jax_metrics import types, utils
 
 
 class MeanAbsolutePercentageErrorTest(TestCase):
@@ -16,7 +16,7 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
 
         # Using 'auto'/'sum_over_batch_size' reduction type.
-        mape = mtx.losses.MeanAbsolutePercentageError()
+        mape = jm.losses.MeanAbsolutePercentageError()
         result = mape(target=target, preds=preds)
         assert np.isclose(result, 2.78, rtol=0.01)
 
@@ -28,16 +28,12 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         )
 
         # Using 'sum' reduction type.
-        mape = mtx.losses.MeanAbsolutePercentageError(
-            reduction=mtx.losses.Reduction.SUM
-        )
+        mape = jm.losses.MeanAbsolutePercentageError(reduction=jm.losses.Reduction.SUM)
 
         assert np.isclose(mape(target=target, preds=preds), 5.6, rtol=0.01)
 
         # Using 'none' reduction type.
-        mape = mtx.losses.MeanAbsolutePercentageError(
-            reduction=mtx.losses.Reduction.NONE
-        )
+        mape = jm.losses.MeanAbsolutePercentageError(reduction=jm.losses.Reduction.NONE)
 
         result = mape(target=target, preds=preds)
         assert jnp.all(np.isclose(result, [0.0, 5.6], rtol=0.01))
@@ -49,7 +45,7 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
 
         ## Standard MAPE
-        mape_elegy = mtx.losses.MeanAbsolutePercentageError()
+        mape_elegy = jm.losses.MeanAbsolutePercentageError()
         mape_tfk = tfk.losses.MeanAbsolutePercentageError()
         assert np.isclose(
             mape_elegy(target=target, preds=preds),
@@ -65,8 +61,8 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         )
 
         ## MAPE with reduction method: SUM
-        mape_elegy = mtx.losses.MeanAbsolutePercentageError(
-            reduction=mtx.losses.Reduction.SUM
+        mape_elegy = jm.losses.MeanAbsolutePercentageError(
+            reduction=jm.losses.Reduction.SUM
         )
         mape_tfk = tfk.losses.MeanAbsolutePercentageError(
             reduction=tfk.losses.Reduction.SUM
@@ -78,8 +74,8 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         )
 
         ## MAPE with reduction method: NONE
-        mape_elegy = mtx.losses.MeanAbsolutePercentageError(
-            reduction=mtx.losses.Reduction.NONE
+        mape_elegy = jm.losses.MeanAbsolutePercentageError(
+            reduction=jm.losses.Reduction.NONE
         )
         mape_tfk = tfk.losses.MeanAbsolutePercentageError(
             reduction=tfk.losses.Reduction.NONE
@@ -97,7 +93,7 @@ class MeanAbsolutePercentageErrorTest(TestCase):
         target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
         preds = jax.random.uniform(rng, shape=(2, 3))
         target = target.astype(preds.dtype)
-        loss = mtx.losses.mean_absolute_percentage_error(target, preds)
+        loss = jm.losses.mean_absolute_percentage_error(target, preds)
         assert loss.shape == (2,)
         assert jnp.array_equal(
             loss,

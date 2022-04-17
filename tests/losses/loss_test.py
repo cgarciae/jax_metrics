@@ -4,12 +4,12 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-import metrix as mtx
+import jax_metrics as jm
 
 
 class LossTest(TestCase):
     def test_basic(self):
-        class MAE(mtx.Loss):
+        class MAE(jm.Loss):
             def call(self, target, preds):
                 return jnp.abs(target - preds)
 
@@ -25,7 +25,7 @@ class LossTest(TestCase):
         assert loss == 1
 
     def test_slice(self):
-        class MAE(mtx.Loss):
+        class MAE(jm.Loss):
             def call(self, target, preds):
                 return jnp.abs(target - preds)
 

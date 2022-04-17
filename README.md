@@ -1,4 +1,4 @@
-# Metrix
+# JAX Metrics
 
 _A Metrics library for the JAX ecosystem_
 
@@ -9,7 +9,7 @@ _A Metrics library for the JAX ecosystem_
 * Automatic accumulation over epochs.
 
 
-Metrix is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
+JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 
 ## What is included?
 * The Keras-like `Loss` and `Metric` abstractions.
@@ -17,12 +17,12 @@ Metrix is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 * The `losses` and `regularizers` modules containing popular losses.
 * The `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
 
-<!-- ## Why Metrix? -->
+<!-- ## Why JAX Metrics? -->
 
 ## Installation
 Install using pip:
 ```bash
-pip install metrix
+pip install jax_metrics
 ```
 
 ## Getting Started
@@ -39,9 +39,9 @@ Simple usage looks like this:
 
 
 ```python
-import metrix as mtx
+import jax_metrics as jm
 
-metric = mtx.metrics.Accuracy()
+metric = jm.metrics.Accuracy()
 
 # Initialize the metric
 metric = metric.reset()
@@ -63,12 +63,12 @@ Note that `update` enforces the use of keyword arguments. Also the `Metric.name`
 Because Metrics are pytrees they can be used with `jit`, `pmap`, etc. On a more realistic scenario you will proably want to use them inside some of your JAX functions in a setup similar to this:
 
 ```python
-import metrix as mtx
+import jax_metrics as jm
 
-metric = mtx.metrics.Accuracy()
+metric = jm.metrics.Accuracy()
 
 @jax.jit
-def init_step(metric: mtx.Metric) -> mtx.Metric:
+def init_step(metric: jm.Metric) -> jm.Metric:
     return metric.reset()
 
 
@@ -92,7 +92,7 @@ Since the loss function usually has access to the predictions and labels, its us
 
 #### Distributed Training
 
-Metrix has a distributed friendly API via the `batch_updates` and `aggregate` methods. A simple example of a loss function inside a data parallel setup could look like this:
+JAX Metrics has a distributed friendly API via the `batch_updates` and `aggregate` methods. A simple example of a loss function inside a data parallel setup could look like this:
 
 ```python
 def loss_fn(params, metric, x, y):
@@ -113,9 +113,9 @@ The `batch_updates` method behaves similar to `update` but returns a new metric 
 The `Loss` API just consists of a `__call__` method. Simple usage looks like this:
 
 ```python
-import metrix as mtx
+import jax_metrics as jm
 
-crossentropy = mtx.losses.Crossentropy()
+crossentropy = jm.losses.Crossentropy()
 
 # get reduced loss value
 loss = crossentropy(target=y, preds=logits) # 0.23
@@ -142,9 +142,9 @@ Combinators as instances of `Metric` that enable you to group together multiple 
 The `Metrics` combinator lets you combine multiple metrics into a single metric.
 
 ```python
-metrics = mtx.Metrics([
-    mtx.metrics.Accuracy(),
-    mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+metrics = jm.Metrics([
+    jm.metrics.Accuracy(),
+    jm.metrics.F1(), # not yet implemented 😅, coming soon?
 ])
 
 # same API
@@ -162,9 +162,9 @@ As you can see the `Metrics.update` method accepts and forwards all the argument
 If a dictionary is used instead of a list, the keys are used instead of the `name` property of the metrics to determine the key in the returned dict.
 
 ```python
-metrics = mtx.Metrics({
-    "acc": mtx.metrics.Accuracy(),
-    "f_one": mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+metrics = jm.Metrics({
+    "acc": jm.metrics.Accuracy(),
+    "f_one": jm.metrics.F1(), # not yet implemented 😅, coming soon?
 })
 
 # same API
@@ -184,9 +184,9 @@ You can use nested structures of dicts and lists to group metrics, the keys of t
 `Losses` is a `Metric` combinator that behaves very similarly to `Metrics` but contains `Loss` instances. `Losses` calculates the cumulative **mean** value of each loss over the batches.
 
 ```python
-losses = mtx.Losses([
-    mtx.losses.Crossentropy(),
-    mtx.regularizers.L2(1e-4),
+losses = jm.Losses([
+    jm.losses.Crossentropy(),
+    jm.regularizers.L2(1e-4),
 ])
 
 # same API
@@ -206,9 +206,9 @@ As with `Metrics`, the `update` method accepts and forwards all the arguments re
 If a dictionary is used instead of a list, the keys are used instead of the `name` property of the losses to determine the key in the returned dict.
 
 ```python
-losses = mtx.Losses({
-    "xent": mtx.losses.Crossentropy(),
-    "l_two": mtx.regularizers.L2(1e-4),
+losses = jm.Losses({
+    "xent": jm.losses.Crossentropy(),
+    "l_two": jm.regularizers.L2(1e-4),
 })
 
 # same API
@@ -247,14 +247,14 @@ def loss_fn(...):
 The `LossesAndMetrics` combinator is a `Metric` that combines the `Lossses` and `Metrics` combinators. Its main utility instead of using these independently is that it can computes a single logs dictionary while making sure that names/keys remain unique in case of collisions.
 
 ```python
-losses_and_metrics = mtx.LossesAndMetrics(
+losses_and_metrics = jm.LossesAndMetrics(
     metrics=[
-        mtx.metrics.Accuracy(),
-        mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+        jm.metrics.Accuracy(),
+        jm.metrics.F1(), # not yet implemented 😅, coming soon?
     ],
     losses=[
-        mtx.losses.Crossentropy(),
-        mtx.regularizers.L2(1e-4),
+        jm.losses.Crossentropy(),
+        jm.regularizers.L2(1e-4),
     ],
 )
 

@@ -5,10 +5,10 @@ import jax
 import pytest
 import treeo as to
 
-import metrix as mtx
+import jax_metrics as jm
 
 
-class MyMetric(mtx.Metric):
+class MyMetric(jm.Metric):
     target: tp.Optional[int] = to.node(None)
     preds: tp.Optional[int] = to.node(None)
 
@@ -73,7 +73,7 @@ class TestMetric:
             metric(target, preds)
 
     def test_jit(self):
-        class MyMetric(mtx.Metric):
+        class MyMetric(jm.Metric):
             a: tp.Optional[int] = to.node()
 
             def __init__(self) -> None:

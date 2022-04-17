@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "metrix"
+name = "jax_metrics"
 version = "0.1.0.a0"
 description = ""
 authors = ["Cristian Garcia <cgarcia.e88@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/cgarciae/metrix"
-homepage = "https://cgarciae.github.io/metrix"
+repository = "https://github.com/cgarciae/jax_metrics"
+homepage = "https://cgarciae.github.io/jax_metrics"
 
 [[tool.poetry.source]]
 name = "torch"

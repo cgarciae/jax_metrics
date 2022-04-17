@@ -1,9 +1,9 @@
-site_name: Metrix
-repo_name: cgarciae/metrix
-repo_url: https://github.com/cgarciae/metrix
-site_url: https://cgarciae.github.io/metrix
+site_name: JAX Metrics
+repo_name: cgarciae/jax_metrics
+repo_url: https://github.com/cgarciae/jax_metrics
+site_url: https://cgarciae.github.io/jax_metrics
 nav:
-- Metrix: index.md
+- JAX Metrics: index.md
 - API Reference:
     Loss: api/Loss.md
     Losses: api/Losses.md
@@ -78,6 +78,6 @@ plugins:
 - mkdocs-jupyter
 - mkdocstrings:
     watch:
-    - metrix
+    - jax_metrics
 extra_javascript:
 - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML

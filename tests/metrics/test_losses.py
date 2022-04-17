@@ -3,8 +3,8 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-import metrix as mtx
-from metrix import losses
+import jax_metrics as jm
+from jax_metrics import losses
 
 
 class TestLosses:
@@ -13,15 +13,15 @@ class TestLosses:
         N = 0
 
         @jax.jit
-        def f(m: mtx.metrics.Losses, target, preds):
+        def f(m: jm.metrics.Losses, target, preds):
             nonlocal N
             N += 1
             return m.loss_and_update(target=target, preds=preds)
 
-        losses = mtx.metrics.Losses(
+        losses = jm.metrics.Losses(
             [
-                mtx.losses.MeanSquaredError(),
-                mtx.losses.MeanSquaredError(),
+                jm.losses.MeanSquaredError(),
+                jm.losses.MeanSquaredError(),
             ]
         ).reset()
         target = jnp.array([0.0, 0.0, 0.0, 0.0])[None, None, None, :]
@@ -48,15 +48,15 @@ class TestLosses:
         N = 0
 
         @jax.jit
-        def f(m: mtx.metrics.Losses, target, preds):
+        def f(m: jm.metrics.Losses, target, preds):
             nonlocal N
             N += 1
             return m.loss_and_update(target=target, preds=preds)
 
-        losses = mtx.metrics.Losses(
+        losses = jm.metrics.Losses(
             dict(
-                a=mtx.losses.MeanSquaredError(),
-                b=mtx.losses.MeanSquaredError(),
+                a=jm.losses.MeanSquaredError(),
+                b=jm.losses.MeanSquaredError(),
             )
         )
         target = jnp.array([0.0, 0.0, 0.0, 0.0])[None, None, None, :]
@@ -89,14 +89,14 @@ class TestAuxLosses:
         N = 0
 
         @jax.jit
-        def f(aux_losses: mtx.metrics.AuxLosses, value):
+        def f(aux_losses: jm.metrics.AuxLosses, value):
             nonlocal N
             N += 1
             loss_logs = {"aux": value}
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
         loss_logs = {"aux": jnp.array(1.0, jnp.float32)}
-        losses = mtx.metrics.AuxLosses().reset(loss_logs)
+        losses = jm.metrics.AuxLosses().reset(loss_logs)
 
         value = jnp.array(1.0, jnp.float32)
         loss, losses = f(losses, value)
@@ -116,14 +116,14 @@ class TestAuxLosses:
         N = 0
 
         @jax.jit
-        def f(aux_losses: mtx.metrics.AuxLosses, value):
+        def f(aux_losses: jm.metrics.AuxLosses, value):
             nonlocal N
             N += 1
             loss_logs = {"my_loss": value}
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
         loss_logs = {"my_loss": jnp.array(0.0, jnp.float32)}
-        losses = mtx.metrics.AuxLosses().reset(loss_logs)
+        losses = jm.metrics.AuxLosses().reset(loss_logs)
 
         value = jnp.array(1.0, jnp.float32)
         loss, losses = f(losses, value)

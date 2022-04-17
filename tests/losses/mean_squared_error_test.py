@@ -1,7 +1,7 @@
 import jax
 import jax.numpy as jnp
 
-import metrix as mtx
+import jax_metrics as jm
 
 # import debugpy
 
@@ -17,7 +17,7 @@ def test_basic():
     preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
 
     # Using 'auto'/'sum_over_batch_size' reduction type.
-    mse = mtx.losses.MeanSquaredError()
+    mse = jm.losses.MeanSquaredError()
 
     assert mse(target=target, preds=preds) == 0.5
 
@@ -25,12 +25,12 @@ def test_basic():
     assert mse(target=target, preds=preds, sample_weight=jnp.array([0.7, 0.3])) == 0.25
 
     # Using 'sum' reduction type.
-    mse = mtx.losses.MeanSquaredError(reduction=mtx.losses.Reduction.SUM)
+    mse = jm.losses.MeanSquaredError(reduction=jm.losses.Reduction.SUM)
 
     assert mse(target=target, preds=preds) == 1.0
 
     # Using 'none' reduction type.
-    mse = mtx.losses.MeanSquaredError(reduction=mtx.losses.Reduction.NONE)
+    mse = jm.losses.MeanSquaredError(reduction=jm.losses.Reduction.NONE)
 
     assert list(mse(target=target, preds=preds)) == [0.5, 0.5]
 
@@ -43,7 +43,7 @@ def test_function():
     target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
     preds = jax.random.uniform(rng, shape=(2, 3))
 
-    loss = mtx.losses.mean_squared_error(target, preds)
+    loss = jm.losses.mean_squared_error(target, preds)
 
     assert loss.shape == (2,)
 

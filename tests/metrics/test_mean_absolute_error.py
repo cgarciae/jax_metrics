@@ -5,7 +5,7 @@ import torch
 import torchmetrics as tm
 from hypothesis import strategies as st
 
-import metrix as mtx
+import jax_metrics as jm
 
 
 class TestMAE:
@@ -14,7 +14,7 @@ class TestMAE:
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
-        mae_tx = mtx.metrics.MeanAbsoluteError()
+        mae_tx = jm.metrics.MeanAbsoluteError()
         mae_tx_value, mae_tx = mae_tx(target=target, preds=preds)
 
         mae_tm = tm.MeanAbsoluteError()
@@ -37,12 +37,12 @@ class TestMAE:
                 sum = sample_weight.sum()
 
         params = {"target": target, "preds": preds}
-        mae_tx = mtx.metrics.MeanAbsoluteError().reset()
+        mae_tx = jm.metrics.MeanAbsoluteError().reset()
         if use_sample_weight:
             params.update({"sample_weight": sample_weight})
         mae_tx_value, mae_tx = mae_tx(**params)
 
-        mae_tx = mtx.metrics.MeanAbsoluteError().reset()
+        mae_tx = jm.metrics.MeanAbsoluteError().reset()
         if use_sample_weight:
             target, preds = target[sample_weight == 1], preds[sample_weight == 1]
         mae_tx_no_sample_weight, mae_tx = mae_tx(target=target, preds=preds)
@@ -63,12 +63,12 @@ class TestMAE:
             sample_weight = np.random.choice([0, 1], 8 * 20).reshape((8, 20))
             params.update({"sample_weight": sample_weight})
 
-        mae_tx, _ = mtx.metrics.MeanAbsoluteError().reset()(**params)
+        mae_tx, _ = jm.metrics.MeanAbsoluteError().reset()(**params)
 
         assert isinstance(mae_tx, jnp.ndarray)
 
     def test_accumulative_mae(self):
-        mae_tx = mtx.metrics.MeanAbsoluteError().reset()
+        mae_tx = jm.metrics.MeanAbsoluteError().reset()
         mae_tm = tm.MeanAbsoluteError()
         for batch in range(2):
 
@@ -88,8 +88,8 @@ class TestMAE:
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
-        mae_tx_long, _ = mtx.metrics.MeanAbsoluteError().reset()(
+        mae_tx_long, _ = jm.metrics.MeanAbsoluteError().reset()(
             target=target, preds=preds
         )
-        mae_tx_short, _ = mtx.metrics.MAE().reset()(target=target, preds=preds)
+        mae_tx_short, _ = jm.metrics.MAE().reset()(target=target, preds=preds)
         assert np.isclose(np.array(mae_tx_long), np.array(mae_tx_short))

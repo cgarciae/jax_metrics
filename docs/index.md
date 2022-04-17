@@ -1,4 +1,4 @@
-# Metrix
+# JAX Metrics
 
 _A Metrics library for the JAX ecosystem_
 
@@ -9,27 +9,27 @@ _A Metrics library for the JAX ecosystem_
 * Automatic accumulation over entire epochs.
 
 
-Metrix is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
+JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 
 ## What is included?
 * A Keras-like `Metric` abstraction.
 * A Keras-like `Loss` abstraction.
 * A `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
 * A `metrics` moduel containing popular metrics.
-* A `losses` and `regularizers` module containing popular losses.## Why Metrix?
+* A `losses` and `regularizers` module containing popular losses.## Why JAX Metrics?
 
 ## Installation
 Install using pip:
 ```bash
-pip install metrix
+pip install jax_metrics
 ```
 
 ## Getting Started
 
 ```python
-import metrix as mtx
+import jax_metrics as jm
 
-metric = mtx.metrics.Accuracy()
+metric = jm.metrics.Accuracy()
 
 # Initialize the metric
 metric = metric.reset()
@@ -45,12 +45,12 @@ logs = metric.compute_logs() # {'accuracy': 0.95}
 ```
 
 ```python
-import metrix as mtx
+import jax_metrics as jm
 
-metric = mtx.metrics.Accuracy()
+metric = jm.metrics.Accuracy()
 
 @jax.jit
-def init_step(metric: mtx.Metric) -> mtx.Metric:
+def init_step(metric: jm.Metric) -> jm.Metric:
     return metric.reset()
 
 
@@ -87,9 +87,9 @@ batch_updates = jax.lax.psum(batch_updates, "device")
 ```
 
 ```python
-metrics = mtx.Metrics([
-    mtx.metrics.Accuracy(),
-    mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+metrics = jm.Metrics([
+    jm.metrics.Accuracy(),
+    jm.metrics.F1(), # not yet implemented 😅, coming soon?
 ])
 
 # same API
@@ -103,9 +103,9 @@ metrics.compute_logs() # {'accuracy': 0.95, 'f1': 0.87}
 ```
 
 ```python
-metrics = mtx.Metrics({
-    "acc": mtx.metrics.Accuracy(),
-    "f_one": mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+metrics = jm.Metrics({
+    "acc": jm.metrics.Accuracy(),
+    "f_one": jm.metrics.F1(), # not yet implemented 😅, coming soon?
 })
 
 # same API
@@ -119,9 +119,9 @@ metrics.compute_logs() # {'acc': 0.95, 'f_one': 0.87}
 ```
 
 ```python
-losses = mtx.Losses([
-    mtx.losses.Crossentropy(),
-    mtx.regularizers.L2(1e-4),
+losses = jm.Losses([
+    jm.losses.Crossentropy(),
+    jm.regularizers.L2(1e-4),
 ])
 
 # same API
@@ -137,9 +137,9 @@ total_loss = losses.total_loss() # 0.235
 ```
 
 ```python
-losses = mtx.Losses({
-    "xent": mtx.losses.Crossentropy(),
-    "l_two": mtx.regularizers.L2(1e-4),
+losses = jm.Losses({
+    "xent": jm.losses.Crossentropy(),
+    "l_two": jm.regularizers.L2(1e-4),
 })
 
 # same API
@@ -173,14 +173,14 @@ def loss_fn(...):
 ```
 
 ```python
-lms = mtx.LossesAndMetrics(
+lms = jm.LossesAndMetrics(
     metrics=[
-        mtx.metrics.Accuracy(),
-        mtx.metrics.F1(), # not yet implemented 😅, coming soon?
+        jm.metrics.Accuracy(),
+        jm.metrics.F1(), # not yet implemented 😅, coming soon?
     ],
     losses=[
-        mtx.losses.Crossentropy(),
-        mtx.regularizers.L2(1e-4),
+        jm.losses.Crossentropy(),
+        jm.regularizers.L2(1e-4),
     ],
 )
 

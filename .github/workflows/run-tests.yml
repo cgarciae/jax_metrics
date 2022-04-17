@@ -41,7 +41,7 @@ jobs:
           poetry install
 
       - name: Run Tests
-        run: pytest --cov=metrix --cov-report=term-missing --cov-report=xml
+        run: pytest --cov=jax_metrics --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage
         uses: codecov/codecov-action@v1
@@ -77,5 +77,5 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --no-dev
         
-      - name: Test Import Metrix
-        run: python -c "import metrix"
+      - name: Test Import JAX Metrics
+        run: python -c "import jax_metrics"

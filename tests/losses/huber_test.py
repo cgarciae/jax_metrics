@@ -3,7 +3,7 @@ import jax.numpy as jnp
 import numpy as np
 import tensorflow.keras as tfk
 
-import metrix as mtx
+import jax_metrics as jm
 
 # import debugpy
 
@@ -18,7 +18,7 @@ def test_basic():
     preds = jnp.array([[0.6, 0.4], [0.4, 0.6]])
 
     # Using 'auto'/'sum_over_batch_size' reduction type.
-    huber_loss = mtx.losses.Huber()
+    huber_loss = jm.losses.Huber()
     assert huber_loss(target=target, preds=preds) == 0.155
 
     # Calling with 'sample_weight'.
@@ -28,11 +28,11 @@ def test_basic():
     )
 
     # Using 'sum' reduction type.
-    huber_loss = mtx.losses.Huber(reduction=mtx.losses.Reduction.SUM)
+    huber_loss = jm.losses.Huber(reduction=jm.losses.Reduction.SUM)
     assert huber_loss(target=target, preds=preds) == 0.31
 
     # Using 'none' reduction type.
-    huber_loss = mtx.losses.Huber(reduction=mtx.losses.Reduction.NONE)
+    huber_loss = jm.losses.Huber(reduction=jm.losses.Reduction.NONE)
 
     assert jnp.equal(
         huber_loss(target=target, preds=preds), jnp.array([0.18, 0.13000001])
@@ -46,7 +46,7 @@ def test_function():
     target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
     preds = jax.random.uniform(rng, shape=(2, 3))
 
-    loss = mtx.losses.huber(target, preds, delta=1.0)
+    loss = jm.losses.huber(target, preds, delta=1.0)
     assert loss.shape == (2,)
 
     preds = preds.astype(float)
@@ -77,7 +77,7 @@ def test_compatibility():
     preds = jax.random.uniform(rng, shape=(2, 3))
 
     # cosine_loss using sample_weight
-    huber_loss = mtx.losses.Huber(delta=1.0)
+    huber_loss = jm.losses.Huber(delta=1.0)
     huber_loss_tfk = tfk.losses.Huber(delta=1.0)
 
     assert np.isclose(
@@ -87,7 +87,7 @@ def test_compatibility():
     )
 
     # cosine_loss with reduction method: SUM
-    huber_loss = mtx.losses.Huber(delta=1.0, reduction=mtx.losses.Reduction.SUM)
+    huber_loss = jm.losses.Huber(delta=1.0, reduction=jm.losses.Reduction.SUM)
     huber_loss_tfk = tfk.losses.Huber(delta=1.0, reduction=tfk.losses.Reduction.SUM)
     assert np.isclose(
         huber_loss(target=target, preds=preds),
@@ -96,7 +96,7 @@ def test_compatibility():
     )
 
     # cosine_loss with reduction method: NONE
-    huber_loss = mtx.losses.Huber(delta=1.0, reduction=mtx.losses.Reduction.NONE)
+    huber_loss = jm.losses.Huber(delta=1.0, reduction=jm.losses.Reduction.NONE)
     huber_loss_tfk = tfk.losses.Huber(delta=1.0, reduction=tfk.losses.Reduction.NONE)
     assert jnp.all(
         np.isclose(
