@@ -8,10 +8,10 @@ import jax
 import jinja2
 import yaml
 
-import jax_metrics as MODULE
+import metrix as MODULE
 
-MODULE_NAME = "jax_metrics"
-INCLUDED_MODULES = {"jax_metrics", "treeo"}
+MODULE_NAME = "metrix"
+INCLUDED_MODULES = {"metrix", "treeo"}
 
 
 class MemberInfo:

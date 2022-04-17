@@ -4,9 +4,9 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-import jax_metrics as jm
-from jax_metrics.metrics.accuracy import Accuracy
-from jax_metrics.metrics.utils import DataType
+import metrix as mtx
+from metrix.metrics.accuracy import Accuracy
+from metrix.metrics.utils import DataType
 
 
 class TestAccuracy:

@@ -2,8 +2,8 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-import jax_metrics as jm
-from jax_metrics import losses
+import metrix as mtx
+from metrix import losses
 
 
 class TestLossAndLogs:
@@ -13,7 +13,7 @@ class TestLossAndLogs:
 
         @jax.jit
         def f(
-            metrics: jm.metrics.LossesAndMetrics,
+            metrics: mtx.metrics.LossesAndMetrics,
             target,
             preds,
             aux_loss,
@@ -28,21 +28,21 @@ class TestLossAndLogs:
                 aux_metrics={"aux_metric": aux_metric},
             )
 
-        metrics = jm.metrics.LossesAndMetrics(
-            losses=jm.metrics.Losses(
+        metrics = mtx.metrics.LossesAndMetrics(
+            losses=mtx.metrics.Losses(
                 [
-                    jm.losses.MeanSquaredError(),
-                    jm.losses.MeanSquaredError(),
+                    mtx.losses.MeanSquaredError(),
+                    mtx.losses.MeanSquaredError(),
                 ]
             ).slice(target="losses", preds="losses"),
-            metrics=jm.metrics.Metrics(
+            metrics=mtx.metrics.Metrics(
                 dict(
-                    a=jm.metrics.Accuracy(num_classes=10),
-                    b=jm.metrics.Accuracy(num_classes=10),
+                    a=mtx.metrics.Accuracy(num_classes=10),
+                    b=mtx.metrics.Accuracy(num_classes=10),
                 )
             ).slice(target="metrics", preds="metrics"),
-            aux_losses=jm.metrics.AuxLosses(),
-            aux_metrics=jm.metrics.AuxMetrics(),
+            aux_losses=mtx.metrics.AuxLosses(),
+            aux_metrics=mtx.metrics.AuxMetrics(),
         ).reset(
             aux_losses={"aux_loss": jnp.array(0.0, jnp.float32)},
             aux_metrics={"aux_metric": jnp.array(0.0, jnp.float32)},
@@ -91,7 +91,7 @@ class TestLossAndLogs:
 
         @jax.jit
         def f(
-            metrics: jm.metrics.LossesAndMetrics,
+            metrics: mtx.metrics.LossesAndMetrics,
             target,
             preds,
             aux_loss,
@@ -106,21 +106,21 @@ class TestLossAndLogs:
                 aux_metrics={"aux_metric": aux_metric},
             )
 
-        metrics = jm.metrics.LossesAndMetrics(
-            losses=jm.metrics.Losses(
+        metrics = mtx.metrics.LossesAndMetrics(
+            losses=mtx.metrics.Losses(
                 [
-                    jm.losses.MeanSquaredError(),
-                    jm.losses.MeanSquaredError(),
+                    mtx.losses.MeanSquaredError(),
+                    mtx.losses.MeanSquaredError(),
                 ]
             ).slice(target="losses", preds="losses"),
-            metrics=jm.metrics.Metrics(
+            metrics=mtx.metrics.Metrics(
                 dict(
-                    a=jm.metrics.Accuracy(num_classes=10),
-                    b=jm.metrics.Accuracy(num_classes=10),
+                    a=mtx.metrics.Accuracy(num_classes=10),
+                    b=mtx.metrics.Accuracy(num_classes=10),
                 )
             ).slice(target="metrics", preds="metrics"),
-            aux_losses=jm.metrics.AuxLosses(),
-            aux_metrics=jm.metrics.AuxMetrics(),
+            aux_losses=mtx.metrics.AuxLosses(),
+            aux_metrics=mtx.metrics.AuxMetrics(),
         ).reset(
             aux_losses={"aux_loss": jnp.array(0.0, jnp.float32)},
             aux_metrics={"aux_metric": jnp.array(0.0, jnp.float32)},

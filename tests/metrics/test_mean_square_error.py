@@ -5,7 +5,7 @@ import torch
 import torchmetrics as tm
 from hypothesis import strategies as st
 
-import jax_metrics as jm
+import metrix as mtx
 
 
 class TestMSE:
@@ -14,7 +14,7 @@ class TestMSE:
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
-        mse_tx = jm.metrics.MeanSquareError().reset()
+        mse_tx = mtx.metrics.MeanSquareError().reset()
         mse_tx_value, mse_tx = mse_tx(target=target, preds=preds)
 
         mse_tm = tm.MeanSquaredError()
@@ -22,7 +22,7 @@ class TestMSE:
         assert np.isclose(np.array(mse_tx_value), mse_tm_value.numpy())
 
     def test_accumulative_mse(self):
-        mse_tx = jm.metrics.MeanSquareError().reset()
+        mse_tx = mtx.metrics.MeanSquareError().reset()
         mse_tm = tm.MeanSquaredError()
 
         for batch in range(2):
@@ -43,13 +43,13 @@ class TestMSE:
         preds = np.random.randn(8, 20, 20)
 
         mse_tx_long = (
-            jm.metrics.MeanSquareError()
+            mtx.metrics.MeanSquareError()
             .reset()
             .update(target=target, preds=preds)
             .compute()
         )
         mse_tx_short = (
-            jm.metrics.MSE().reset().update(target=target, preds=preds).compute()
+            mtx.metrics.MSE().reset().update(target=target, preds=preds).compute()
         )
         assert np.isclose(np.array(mse_tx_long), np.array(mse_tx_short))
 
@@ -63,7 +63,7 @@ class TestMSE:
         preds = np.random.randn(8, 20, 20)
 
         params = {"target": target, "preds": preds}
-        mse_tx = jm.metrics.MeanSquareError()
+        mse_tx = mtx.metrics.MeanSquareError()
 
         if use_sample_weight:
             sample_weight = np.random.choice([0, 1], 8)
@@ -76,7 +76,7 @@ class TestMSE:
         if use_sample_weight:
             target, preds = target[sample_weight == 1], preds[sample_weight == 1]
 
-        mse_tx = jm.metrics.MeanSquareError()
+        mse_tx = mtx.metrics.MeanSquareError()
         mse_tx_no_sample_weight, mse_tx = mse_tx(**params)
 
         assert np.isclose(mse_tx_value, mse_tx_no_sample_weight)
@@ -95,6 +95,6 @@ class TestMSE:
             sample_weight = np.random.choice([0, 1], 8 * 20).reshape((8, 20))
             params.update({"sample_weight": sample_weight})
 
-        mse_tx, _ = jm.metrics.MeanSquareError()(**params)
+        mse_tx, _ = mtx.metrics.MeanSquareError()(**params)
 
         assert isinstance(mse_tx, jnp.ndarray)

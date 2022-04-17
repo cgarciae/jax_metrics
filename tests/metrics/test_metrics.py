@@ -2,8 +2,8 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-import jax_metrics as jm
-from jax_metrics import metrics
+import metrix as mtx
+from metrix import metrics
 
 
 class TestAccuracy:
@@ -17,10 +17,10 @@ class TestAccuracy:
             N += 1
             return m.update(target=target, preds=preds)
 
-        metrics = jm.metrics.Metrics(
+        metrics = mtx.metrics.Metrics(
             [
-                jm.metrics.Accuracy(num_classes=10),
-                jm.metrics.Accuracy(num_classes=10),
+                mtx.metrics.Accuracy(num_classes=10),
+                mtx.metrics.Accuracy(num_classes=10),
             ]
         ).reset()
         target = jnp.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])[None, None, None, :]
@@ -44,10 +44,10 @@ class TestAccuracy:
             N += 1
             return m.update(target=target, preds=preds)
 
-        metrics = jm.metrics.Metrics(
+        metrics = mtx.metrics.Metrics(
             dict(
-                a=jm.metrics.Accuracy(num_classes=10),
-                b=jm.metrics.Accuracy(num_classes=10),
+                a=mtx.metrics.Accuracy(num_classes=10),
+                b=mtx.metrics.Accuracy(num_classes=10),
             )
         ).reset()
         target = jnp.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])[None, None, None, :]
@@ -71,13 +71,13 @@ class TestAccuracy:
             N += 1
             return m.update(target=target, preds=preds)
 
-        metrics = jm.metrics.Metrics(
+        metrics = mtx.metrics.Metrics(
             dict(
                 a=[
-                    jm.metrics.Accuracy(num_classes=10),
-                    jm.metrics.Accuracy(num_classes=10),
+                    mtx.metrics.Accuracy(num_classes=10),
+                    mtx.metrics.Accuracy(num_classes=10),
                 ],
-                b=jm.metrics.Accuracy(num_classes=10),
+                b=mtx.metrics.Accuracy(num_classes=10),
             )
         ).reset()
         target = jnp.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])[None, None, None, :]
@@ -98,14 +98,14 @@ class TestAuxMetrics:
         N = 0
 
         @jax.jit
-        def f(aux_metrics: jm.AuxMetrics, value):
+        def f(aux_metrics: mtx.AuxMetrics, value):
             nonlocal N
             N += 1
             metric_logs = {"my_metric": value}
             return aux_metrics.update(aux_values=metric_logs)
 
         metric_logs = {"my_metric": jnp.array(0.0, jnp.float32)}
-        metrics: jm.AuxMetrics = jm.AuxMetrics().reset(metric_logs)
+        metrics: mtx.AuxMetrics = mtx.AuxMetrics().reset(metric_logs)
 
         value = jnp.array(1.0, jnp.float32)
         metrics = f(metrics, value)
@@ -123,14 +123,14 @@ class TestAuxMetrics:
         N = 0
 
         @jax.jit
-        def f(aux_metrics: jm.AuxMetrics, value: jnp.ndarray):
+        def f(aux_metrics: mtx.AuxMetrics, value: jnp.ndarray):
             nonlocal N
             N += 1
             metric_logs = {"my_metric": value}
             return aux_metrics.update(aux_values=metric_logs)
 
         metric_logs = {"my_metric": jnp.array(0.0, jnp.float32)}
-        metrics: jm.AuxMetrics = jm.AuxMetrics().reset(metric_logs)
+        metrics: mtx.AuxMetrics = mtx.AuxMetrics().reset(metric_logs)
 
         value = jnp.array(1.0, jnp.float32)
         metrics = f(metrics, value)

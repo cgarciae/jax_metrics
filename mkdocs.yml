@@ -1,7 +1,7 @@
 site_name: JAX Metrics
-repo_name: cgarciae/jax_metrics
-repo_url: https://github.com/cgarciae/jax_metrics
-site_url: https://cgarciae.github.io/jax_metrics
+repo_name: cgarciae/metrix
+repo_url: https://github.com/cgarciae/metrix
+site_url: https://cgarciae.github.io/metrix
 nav:
 - JAX Metrics: index.md
 - API Reference:
@@ -78,6 +78,6 @@ plugins:
 - mkdocs-jupyter
 - mkdocstrings:
     watch:
-    - jax_metrics
+    - metrix
 extra_javascript:
 - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML

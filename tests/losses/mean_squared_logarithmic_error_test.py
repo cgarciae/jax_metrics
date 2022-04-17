@@ -3,8 +3,8 @@ import jax.numpy as jnp
 import numpy as np
 import tensorflow.keras as tfk
 
-import jax_metrics as jm
-from jax_metrics import types, utils
+import metrix as mtx
+from metrix import types, utils
 
 # import debugpy
 
@@ -19,7 +19,7 @@ def test_basic():
     preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
 
     # Using 'auto'/'sum_over_batch_size' reduction type.
-    msle = jm.losses.MeanSquaredLogarithmicError()
+    msle = mtx.losses.MeanSquaredLogarithmicError()
 
     assert msle(target=target, preds=preds) == 0.24022643
 
@@ -30,12 +30,12 @@ def test_basic():
     )
 
     # Using 'sum' reduction type.
-    msle = jm.losses.MeanSquaredLogarithmicError(reduction=jm.losses.Reduction.SUM)
+    msle = mtx.losses.MeanSquaredLogarithmicError(reduction=mtx.losses.Reduction.SUM)
 
     assert msle(target=target, preds=preds) == 0.48045287
 
     # Using 'none' reduction type.
-    msle = jm.losses.MeanSquaredLogarithmicError(reduction=jm.losses.Reduction.NONE)
+    msle = mtx.losses.MeanSquaredLogarithmicError(reduction=mtx.losses.Reduction.NONE)
 
     assert jnp.equal(
         msle(target=target, preds=preds), jnp.array([0.24022643, 0.24022643])
@@ -49,7 +49,7 @@ def test_function():
     target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
     preds = jax.random.uniform(rng, shape=(2, 3))
 
-    loss = jm.losses.mean_squared_logarithmic_error(target, preds)
+    loss = mtx.losses.mean_squared_logarithmic_error(target, preds)
 
     assert loss.shape == (2,)
 
@@ -64,7 +64,7 @@ def test_compatibility():
     preds = jnp.array([[0.6, 0.4], [0.4, 0.6]])
 
     # MSLE using sample_weight
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError()
+    msle_elegy = mtx.losses.MeanSquaredLogarithmicError()
     msle_tfk = tfk.losses.MeanSquaredLogarithmicError()
     assert np.isclose(
         msle_elegy(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
@@ -73,8 +73,8 @@ def test_compatibility():
     )
 
     # MSLE with reduction method: SUM
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError(
-        reduction=jm.losses.Reduction.SUM
+    msle_elegy = mtx.losses.MeanSquaredLogarithmicError(
+        reduction=mtx.losses.Reduction.SUM
     )
     msle_tfk = tfk.losses.MeanSquaredLogarithmicError(
         reduction=tfk.losses.Reduction.SUM
@@ -84,8 +84,8 @@ def test_compatibility():
     )
 
     # MSLE with reduction method: NONE
-    msle_elegy = jm.losses.MeanSquaredLogarithmicError(
-        reduction=jm.losses.Reduction.NONE
+    msle_elegy = mtx.losses.MeanSquaredLogarithmicError(
+        reduction=mtx.losses.Reduction.NONE
     )
     msle_tfk = tfk.losses.MeanSquaredLogarithmicError(
         reduction=tfk.losses.Reduction.NONE

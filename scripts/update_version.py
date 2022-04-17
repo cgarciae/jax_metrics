@@ -20,7 +20,7 @@ def main(release_name: str):
     pyproject_path.write_text(pyproject_text)
 
     # Update __init__.py
-    init_path = Path("jax_metrics/__init__.py")
+    init_path = Path("metrix/__init__.py")
     init_text = init_path.read_text()
     init_text = re.sub(
         r'__version__ = "(.*?)"',

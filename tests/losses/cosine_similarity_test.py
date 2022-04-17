@@ -3,8 +3,8 @@ import jax.numpy as jnp
 import numpy as np
 import tensorflow.keras as tfk
 
-import jax_metrics as jm
-from jax_metrics import types, utils
+import metrix as mtx
+from metrix import types, utils
 
 # import debugpy
 
@@ -19,7 +19,7 @@ def test_basic():
     preds = jnp.array([[1.0, 0.0], [1.0, 1.0]])
 
     # Using 'auto'/'sum_over_batch_size' reduction type.
-    cosine_loss = jm.losses.CosineSimilarity(axis=1)
+    cosine_loss = mtx.losses.CosineSimilarity(axis=1)
     assert cosine_loss(target=target, preds=preds) == -0.49999997
 
     # Calling with 'sample_weight'.
@@ -29,11 +29,15 @@ def test_basic():
     )
 
     # Using 'sum' reduction type.
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.SUM)
+    cosine_loss = mtx.losses.CosineSimilarity(
+        axis=1, reduction=mtx.losses.Reduction.SUM
+    )
     assert cosine_loss(target=target, preds=preds) == -0.99999994
 
     # Using 'none' reduction type.
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.NONE)
+    cosine_loss = mtx.losses.CosineSimilarity(
+        axis=1, reduction=mtx.losses.Reduction.NONE
+    )
 
     assert jnp.equal(
         cosine_loss(target=target, preds=preds), jnp.array([-0.0, -0.99999994])
@@ -47,7 +51,7 @@ def test_function():
     target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
     preds = jax.random.uniform(rng, shape=(2, 3))
 
-    loss = jm.losses.cosine_similarity(target, preds, axis=1)
+    loss = mtx.losses.cosine_similarity(target, preds, axis=1)
     assert loss.shape == (2,)
 
     target = target / jnp.maximum(
@@ -68,7 +72,7 @@ def test_compatibility():
     preds = jax.random.uniform(rng, shape=(2, 3))
 
     # cosine_loss using sample_weight
-    cosine_loss = jm.losses.CosineSimilarity(axis=1)
+    cosine_loss = mtx.losses.CosineSimilarity(axis=1)
     cosine_loss_tfk = tfk.losses.CosineSimilarity(axis=1)
 
     assert np.isclose(
@@ -78,7 +82,9 @@ def test_compatibility():
     )
 
     # cosine_loss with reduction method: SUM
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.SUM)
+    cosine_loss = mtx.losses.CosineSimilarity(
+        axis=1, reduction=mtx.losses.Reduction.SUM
+    )
     cosine_loss_tfk = tfk.losses.CosineSimilarity(
         axis=1, reduction=tfk.losses.Reduction.SUM
     )
@@ -89,7 +95,9 @@ def test_compatibility():
     )
 
     # cosine_loss with reduction method: NONE
-    cosine_loss = jm.losses.CosineSimilarity(axis=1, reduction=jm.losses.Reduction.NONE)
+    cosine_loss = mtx.losses.CosineSimilarity(
+        axis=1, reduction=mtx.losses.Reduction.NONE
+    )
     cosine_loss_tfk = tfk.losses.CosineSimilarity(
         axis=1, reduction=tfk.losses.Reduction.NONE
     )

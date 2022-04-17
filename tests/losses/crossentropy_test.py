@@ -9,7 +9,7 @@ import tensorflow as tf
 from hypothesis import strategies as st
 from hypothesis.strategies._internal.core import binary
 
-import jax_metrics as jm
+import metrix as mtx
 
 
 class Mode(enum.Enum):
@@ -45,14 +45,14 @@ class TestCrossentropy:
         preds = jnp.array([[0.6, 0.4], [0.4, 0.6]])
 
         # Standard BCE, considering prediction tensor as probabilities
-        bce_treex = jm.losses.Crossentropy(binary=binary, from_logits=from_logits)
+        bce_treex = mtx.losses.Crossentropy(binary=binary, from_logits=from_logits)
         bce_tfk = TFClass(from_logits=from_logits)
         assert np.isclose(
             bce_treex(target=target, preds=preds), bce_tfk(target, preds), rtol=0.0001
         )
 
         # BCE using sample_weight
-        bce_treex = jm.losses.Crossentropy(binary=binary, from_logits=from_logits)
+        bce_treex = mtx.losses.Crossentropy(binary=binary, from_logits=from_logits)
         bce_tfk = TFClass(from_logits=from_logits)
         assert np.isclose(
             bce_treex(target=target, preds=preds, sample_weight=jnp.array([1, 0])),
@@ -61,8 +61,8 @@ class TestCrossentropy:
         )
 
         # BCE with reduction method: SUM
-        bce_treex = jm.losses.Crossentropy(
-            binary=binary, from_logits=from_logits, reduction=jm.losses.Reduction.SUM
+        bce_treex = mtx.losses.Crossentropy(
+            binary=binary, from_logits=from_logits, reduction=mtx.losses.Reduction.SUM
         )
         bce_tfk = TFClass(from_logits=from_logits, reduction=tf.losses.Reduction.SUM)
         assert np.isclose(
@@ -70,8 +70,8 @@ class TestCrossentropy:
         )
 
         # BCE with reduction method: NONE
-        bce_treex = jm.losses.Crossentropy(
-            binary=binary, from_logits=from_logits, reduction=jm.losses.Reduction.NONE
+        bce_treex = mtx.losses.Crossentropy(
+            binary=binary, from_logits=from_logits, reduction=mtx.losses.Reduction.NONE
         )
         bce_tfk = TFClass(from_logits=from_logits, reduction=tf.losses.Reduction.NONE)
         assert jnp.all(
@@ -84,7 +84,7 @@ class TestCrossentropy:
 
         if mode != Mode.SPARSE_CATEGORICAL:
             # BCE with label smoothing
-            bce_treex = jm.losses.Crossentropy(
+            bce_treex = mtx.losses.Crossentropy(
                 binary=binary, from_logits=from_logits, label_smoothing=0.9
             )
             bce_tfk = TFClass(from_logits=from_logits, label_smoothing=0.9)
