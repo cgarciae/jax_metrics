@@ -151,7 +151,7 @@ metrics = jm.Metrics([
 metrics = metrics.reset()
 # same API
 metrics = metrics.update(target=y, preds=logits)
-# compute new returns a dict
+# compute now returns a dict
 metrics.compute() # {'accuracy': 0.95, 'f1': 0.87}
 # same as compute_logs in the case
 metrics.compute_logs() # {'accuracy': 0.95, 'f1': 0.87}
