@@ -1,4 +1,4 @@
-# JAX Metrics
+# Metrix
 
 _A Metrics library for the JAX ecosystem_
 
@@ -9,7 +9,7 @@ _A Metrics library for the JAX ecosystem_
 * Automatic accumulation over epochs.
 
 
-JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
+Metrix is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 
 ## What is included?
 * The Keras-like `Loss` and `Metric` abstractions.
@@ -17,7 +17,7 @@ JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 * The `losses` and `regularizers` modules containing popular losses.
 * The `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
 
-<!-- ## Why JAX Metrics? -->
+<!-- ## Why Metrix? -->
 
 ## Installation
 Install using pip:
@@ -92,7 +92,7 @@ Since the loss function usually has access to the predictions and labels, its us
 
 #### Distributed Training
 
-JAX Metrics has a distributed friendly API via the `batch_updates` and `aggregate` methods. A simple example of a loss function inside a data parallel setup could look like this:
+Metrix has a distributed friendly API via the `batch_updates` and `aggregate` methods. A simple example of a loss function inside a data parallel setup could look like this:
 
 ```python
 def loss_fn(params, metric, x, y):

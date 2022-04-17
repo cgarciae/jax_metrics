@@ -1,9 +1,9 @@
-site_name: JAX Metrics
+site_name: Metrix
 repo_name: cgarciae/metrix
 repo_url: https://github.com/cgarciae/metrix
 site_url: https://cgarciae.github.io/metrix
 nav:
-- JAX Metrics: index.md
+- Metrix: index.md
 - API Reference:
     Loss: api/Loss.md
     Losses: api/Losses.md

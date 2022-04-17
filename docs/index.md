@@ -1,4 +1,4 @@
-# JAX Metrics
+# Metrix
 
 _A Metrics library for the JAX ecosystem_
 
@@ -9,14 +9,14 @@ _A Metrics library for the JAX ecosystem_
 * Automatic accumulation over entire epochs.
 
 
-JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
+Metrix is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 
 ## What is included?
 * A Keras-like `Metric` abstraction.
 * A Keras-like `Loss` abstraction.
 * A `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
 * A `metrics` moduel containing popular metrics.
-* A `losses` and `regularizers` module containing popular losses.## Why JAX Metrics?
+* A `losses` and `regularizers` module containing popular losses.## Why Metrix?
 
 ## Installation
 Install using pip:

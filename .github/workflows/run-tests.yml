@@ -77,5 +77,5 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --no-dev
         
-      - name: Test Import JAX Metrics
+      - name: Test Import Metrix
         run: python -c "import metrix"
