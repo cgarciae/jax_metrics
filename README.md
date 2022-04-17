@@ -25,6 +25,9 @@ Install using pip:
 pip install jax_metrics
 ```
 
+## Status
+Metrics on this library are usually tested against their Keras or Torchmetrics counterparts for numerical equivalence. This code base comes from Treex and Elegy so it's already in use.
+
 ## Getting Started
 
 ### Metric
