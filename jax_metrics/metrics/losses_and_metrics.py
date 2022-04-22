@@ -60,6 +60,7 @@ class LossesAndMetrics(Metric):
 
     def reset(
         self: M,
+        *,
         aux_losses: tp.Optional[tp.Dict[str, jnp.ndarray]] = None,
         aux_metrics: tp.Optional[tp.Dict[str, jnp.ndarray]] = None,
     ) -> M:
