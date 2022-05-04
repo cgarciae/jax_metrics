@@ -47,7 +47,7 @@ import jax_metrics as jm
 metric = jm.metrics.Accuracy()
 
 # Initialize the metric
-metric = metric.reset()
+metric = metric.init()
 
 # Update the metric with a batch of predictions and labels
 metric = metric.update(target=y, preds=logits)
@@ -57,6 +57,9 @@ acc = metric.compute() # 0.95
 
 # alternatively, produce a logs dict
 logs = metric.compute_logs() # {'accuracy': 0.95}
+
+# Reset the metric
+metric = metric.reset()
 ```
 
 Note that `update` enforces the use of keyword arguments. Also the `Metric.name` property is used as the key in the returned dict, by default this is the name of the class in lowercase but can be overridden in the constructor via the `name` argument.
@@ -72,7 +75,7 @@ metric = jm.metrics.Accuracy()
 
 @jax.jit
 def init_step(metric: jm.Metric) -> jm.Metric:
-    return metric.reset()
+    return metric.init()
 
 
 def loss_fn(params, metric, x, y):
@@ -89,6 +92,10 @@ def train_step(params, metric, x, y):
     )
     ...
     return params, metric
+
+@jax.jit
+def reset_step(metric: jm.Metric) -> jm.Metric:
+    return metric.reset()
 ```
 
 Since the loss function usually has access to the predictions and labels, its usually where you would call `metric.update`, and the new metric state can be returned as an auxiliary output.
@@ -151,13 +158,15 @@ metrics = jm.Metrics([
 ])
 
 # same API
-metrics = metrics.reset()
+metrics = metrics.init()
 # same API
 metrics = metrics.update(target=y, preds=logits)
 # compute now returns a dict
 metrics.compute() # {'accuracy': 0.95, 'f1': 0.87}
 # same as compute_logs in the case
 metrics.compute_logs() # {'accuracy': 0.95, 'f1': 0.87}
+# Reset the metrics
+metrics = metrics.reset()
 ```
 
 As you can see the `Metrics.update` method accepts and forwards all the arguments required by the individual metrics. In this example they use the same arguments, but in practice they may consume different subsets of the arguments. Also, if names are repeated then unique names are generated for each metric by appending a number to the metric name.
@@ -171,13 +180,15 @@ metrics = jm.Metrics({
 })
 
 # same API
-metrics = metrics.reset()
+metrics = metrics.init()
 # same API
 metrics = metrics.update(target=y, preds=logits)
 # compute new returns a dict
 metrics.compute() # {'acc': 0.95, 'f_one': 0.87}
 # same as compute_logs in the case
 metrics.compute_logs() # {'acc': 0.95, 'f_one': 0.87}
+# Reset the metrics
+metrics = metrics.reset()
 ```
 
 You can use nested structures of dicts and lists to group metrics, the keys of the dicts are used to determine group names. Group names and metrics names are concatenated using `"/"` e.g. `"{group_name}/{metric_name}"`.
@@ -193,7 +204,7 @@ losses = jm.Losses([
 ])
 
 # same API
-losses = losses.reset()
+losses = losses.init()
 # same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
@@ -202,6 +213,8 @@ losses.compute() # {'crossentropy': 0.23, 'l2': 0.005}
 losses.compute_logs() # {'crossentropy': 0.23, 'l2': 0.005}
 # you can also compute the total loss
 loss = losses.total_loss() # 0.235
+# Reset the losses
+losses = losses.reset()
 ```
 
 As with `Metrics`, the `update` method accepts and forwards all the arguments required by the individual losses. In this example `target` and `preds` are used by the `Crossentropy`, while `parameters` is used by the `L2`. The `total_loss` method returns the sum of all values returned by `compute`.
@@ -215,7 +228,7 @@ losses = jm.Losses({
 })
 
 # same API
-losses = losses.reset()
+losses = losses.init()
 # same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
@@ -224,6 +237,8 @@ losses.compute() # {'xent': 0.23, 'l_two': 0.005}
 losses.compute_logs() # {'xent': 0.23, 'l_two': 0.005}
 # you can also compute the total loss
 loss = losses.total_loss() # 0.235
+# Reset the losses
+losses = losses.reset()
 ```
 
 If you want to use `Losses` to calculate the loss of a model, you should use `batch_updates` followed by `total_loss` to get the correct batch loss. For example, a loss function could be written as:
@@ -262,7 +277,7 @@ losses_and_metrics = jm.LossesAndMetrics(
 )
 
 # same API
-losses_and_metrics = losses_and_metrics.reset()
+losses_and_metrics = losses_and_metrics.init()
 # same API
 losses_and_metrics = losses_and_metrics.update(
     target=y, preds=logits, parameters=params
@@ -273,6 +288,8 @@ losses_and_metrics.compute() # {'loss': 0.235, 'accuracy': 0.95, 'f1': 0.87, 'cr
 losses_and_metrics.compute_logs() # {'loss': 0.235, 'accuracy': 0.95, 'f1': 0.87, 'crossentropy': 0.23, 'l2': 0.005}
 # you can also compute the total loss
 loss = losses_and_metrics.total_loss() # 0.235
+# Reset metrics 
+losses_and_metrics = losses_and_metrics.reset()
 ```
 
 Thanks to consistent naming, `Accuracy`, `F1` and `Crossentropy` all consume the same `target` and `preds` arguments, while `L2` consumes `parameters`. For convenience a `"loss"` key is added to the returned logs dictionary.

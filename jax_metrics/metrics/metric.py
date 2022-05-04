@@ -43,6 +43,12 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
 
         return batch_values, metric
 
+    def init(self: M) -> M:
+        """
+        Initialize the metric's state.
+        """
+        return self.reset()
+
     @abstractmethod
     def reset(self: M) -> M:
         """

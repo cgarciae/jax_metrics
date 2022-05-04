@@ -43,7 +43,7 @@ class TestLossAndLogs:
             ).slice(target="metrics", preds="metrics"),
             aux_losses=jm.metrics.AuxLosses(),
             aux_metrics=jm.metrics.AuxMetrics(),
-        ).reset(
+        ).init(
             aux_losses={"aux_loss": jnp.array(0.0, jnp.float32)},
             aux_metrics={"aux_metric": jnp.array(0.0, jnp.float32)},
         )
@@ -121,7 +121,7 @@ class TestLossAndLogs:
             ).slice(target="metrics", preds="metrics"),
             aux_losses=jm.metrics.AuxLosses(),
             aux_metrics=jm.metrics.AuxMetrics(),
-        ).reset(
+        ).init(
             aux_losses={"aux_loss": jnp.array(0.0, jnp.float32)},
             aux_metrics={"aux_metric": jnp.array(0.0, jnp.float32)},
         )

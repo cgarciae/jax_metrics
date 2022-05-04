@@ -105,7 +105,7 @@ class TestAuxMetrics:
             return aux_metrics.update(aux_values=metric_logs)
 
         metric_logs = {"my_metric": jnp.array(0.0, jnp.float32)}
-        metrics: jm.AuxMetrics = jm.AuxMetrics().reset(metric_logs)
+        metrics: jm.AuxMetrics = jm.AuxMetrics().init(metric_logs)
 
         value = jnp.array(1.0, jnp.float32)
         metrics = f(metrics, value)
@@ -130,7 +130,7 @@ class TestAuxMetrics:
             return aux_metrics.update(aux_values=metric_logs)
 
         metric_logs = {"my_metric": jnp.array(0.0, jnp.float32)}
-        metrics: jm.AuxMetrics = jm.AuxMetrics().reset(metric_logs)
+        metrics: jm.AuxMetrics = jm.AuxMetrics().init(metric_logs)
 
         value = jnp.array(1.0, jnp.float32)
         metrics = f(metrics, value)

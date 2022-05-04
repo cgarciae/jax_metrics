@@ -95,6 +95,7 @@ class Metrics(Metric):
 class AuxMetrics(Metric):
     totals: tp.Optional[tp.Dict[str, jnp.ndarray]] = to.node()
     counts: tp.Optional[tp.Dict[str, jnp.ndarray]] = to.node()
+    names: tp.Optional[tp.Tuple[str, ...]] = to.static()
 
     def __init__(
         self,
@@ -104,20 +105,18 @@ class AuxMetrics(Metric):
         super().__init__(name=name, dtype=dtype)
         self.totals = None
         self.counts = None
+        self.names = None
 
-    def reset(self: A, aux_values: tp.Optional[tp.Dict[str, jnp.ndarray]] = None) -> A:
-        if self.totals is None or self.counts is None:
-            if aux_values is None:
-                raise ValueError(
-                    "'aux_values' must be provided on the first call to 'reset()"
-                )
+    def init(self: A, aux_values: tp.Dict[str, jnp.ndarray]) -> A:
+        names = tuple(aux_values.keys())
+        return self.replace(names=names).reset()
 
-            names = aux_values.keys()
-        else:
-            names = self.totals.keys()
+    def reset(self: A) -> A:
+        if self.names is None:
+            raise ValueError("AuxMetrics not initialized, call `init()` first")
 
-        totals = {name: jnp.array(0.0, dtype=jnp.float32) for name in names}
-        counts = {name: jnp.array(0, dtype=jnp.uint32) for name in names}
+        totals = {name: jnp.array(0.0, dtype=jnp.float32) for name in self.names}
+        counts = {name: jnp.array(0, dtype=jnp.uint32) for name in self.names}
 
         return self.replace(totals=totals, counts=counts)
 

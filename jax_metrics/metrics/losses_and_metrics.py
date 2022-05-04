@@ -58,12 +58,41 @@ class LossesAndMetrics(Metric):
             else None
         )
 
-    def reset(
+    def init(
         self: M,
         *,
         aux_losses: tp.Optional[tp.Dict[str, jnp.ndarray]] = None,
         aux_metrics: tp.Optional[tp.Dict[str, jnp.ndarray]] = None,
     ) -> M:
+
+        if self.aux_losses is not None:
+            if aux_losses is None:
+                raise ValueError("`aux_losses` are expected, got None.")
+
+            aux_losses_ = self.aux_losses.init(aux_losses)
+        else:
+            if aux_losses is not None:
+                raise ValueError(f"`aux_losses` are not expected, got {aux_losses}.")
+
+            aux_losses_ = None
+
+        if self.aux_metrics is not None:
+            if aux_metrics is None:
+                raise ValueError("`aux_metrics` are expected, got None.")
+
+            aux_metrics_ = self.aux_metrics.init(aux_metrics)
+        else:
+            if aux_metrics is not None:
+                raise ValueError(f"`aux_metrics` are not expected, got {aux_metrics}.")
+
+            aux_metrics_ = None
+
+        return self.replace(
+            aux_losses=aux_losses_,
+            aux_metrics=aux_metrics_,
+        ).reset()
+
+    def reset(self: M) -> M:
         if self.losses is not None:
             losses = self.losses.reset()
         else:
@@ -74,12 +103,12 @@ class LossesAndMetrics(Metric):
             metrics = None
 
         if self.aux_losses is not None:
-            aux_losses_ = self.aux_losses.reset(aux_losses)
+            aux_losses_ = self.aux_losses.reset()
         else:
             aux_losses_ = None
 
         if self.aux_metrics is not None:
-            aux_metrics_ = self.aux_metrics.reset(aux_metrics)
+            aux_metrics_ = self.aux_metrics.reset()
         else:
             aux_metrics_ = None
 

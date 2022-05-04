@@ -96,7 +96,7 @@ class TestAuxLosses:
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
         loss_logs = {"aux": jnp.array(1.0, jnp.float32)}
-        losses = jm.metrics.AuxLosses().reset(loss_logs)
+        losses = jm.metrics.AuxLosses().init(loss_logs)
 
         value = jnp.array(1.0, jnp.float32)
         loss, losses = f(losses, value)
@@ -123,7 +123,7 @@ class TestAuxLosses:
             return aux_losses.loss_and_update(aux_values=loss_logs)
 
         loss_logs = {"my_loss": jnp.array(0.0, jnp.float32)}
-        losses = jm.metrics.AuxLosses().reset(loss_logs)
+        losses = jm.metrics.AuxLosses().init(loss_logs)
 
         value = jnp.array(1.0, jnp.float32)
         loss, losses = f(losses, value)
