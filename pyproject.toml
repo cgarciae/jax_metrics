@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jax_metrics"
-version = "0.1.0.a3"
+version = "0.1.0"
 description = ""
 authors = ["Cristian Garcia <cgarcia.e88@gmail.com>"]
 license = "MIT"
