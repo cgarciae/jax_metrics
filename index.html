@@ -260,6 +260,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#getting-started" class="md-nav__link">
     Getting Started
   </a>
@@ -1075,6 +1082,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#getting-started" class="md-nav__link">
     Getting Started
   </a>
@@ -1196,6 +1210,8 @@
 <p>Install using pip:
 <div class="highlight"><pre><span></span><code>pip install jax_metrics
 </code></pre></div></p>
+<h2 id="status">Status</h2>
+<p>Metrics on this library are usually tested against their Keras or Torchmetrics counterparts for numerical equivalence. This code base comes from Treex and Elegy so it's already in use.</p>
 <h2 id="getting-started">Getting Started</h2>
 <h3 id="metric">Metric</h3>
 <p>The <code>Metric</code> API consists of 3 basic methods:</p>
@@ -1210,7 +1226,7 @@
 <span class="n">metric</span> <span class="o">=</span> <span class="n">jm</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()</span>
 
 <span class="c1"># Initialize the metric</span>
-<span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
 <span class="c1"># Update the metric with a batch of predictions and labels</span>
 <span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">)</span>
@@ -1220,6 +1236,9 @@
 
 <span class="c1"># alternatively, produce a logs dict</span>
 <span class="n">logs</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;accuracy&#39;: 0.95}</span>
+
+<span class="c1"># Reset the metric</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>Note that <code>update</code> enforces the use of keyword arguments. Also the <code>Metric.name</code> property is used as the key in the returned dict, by default this is the name of the class in lowercase but can be overridden in the constructor via the <code>name</code> argument.</p>
 <h4 id="tipical-training-setup">Tipical Training Setup</h4>
@@ -1230,7 +1249,7 @@
 
 <span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span> <span class="nf">init_step</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">jm</span><span class="o">.</span><span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jm</span><span class="o">.</span><span class="n">Metric</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -1247,6 +1266,10 @@
     <span class="p">)</span>
     <span class="o">...</span>
     <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">metric</span>
+
+<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">reset_step</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">jm</span><span class="o">.</span><span class="n">Metric</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jm</span><span class="o">.</span><span class="n">Metric</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>Since the loss function usually has access to the predictions and labels, its usually where you would call <code>metric.update</code>, and the new metric state can be returned as an auxiliary output.</p>
 <h4 id="distributed-training">Distributed Training</h4>
@@ -1296,13 +1319,15 @@ There are a few reasons for having losses in a metrics library:
 <span class="p">])</span>
 
 <span class="c1"># same API</span>
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="c1"># same API</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">)</span>
 <span class="c1"># compute now returns a dict</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span> <span class="c1"># {&#39;accuracy&#39;: 0.95, &#39;f1&#39;: 0.87}</span>
 <span class="c1"># same as compute_logs in the case</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;accuracy&#39;: 0.95, &#39;f1&#39;: 0.87}</span>
+<span class="c1"># Reset the metrics</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>As you can see the <code>Metrics.update</code> method accepts and forwards all the arguments required by the individual metrics. In this example they use the same arguments, but in practice they may consume different subsets of the arguments. Also, if names are repeated then unique names are generated for each metric by appending a number to the metric name.</p>
 <p>If a dictionary is used instead of a list, the keys are used instead of the <code>name</code> property of the metrics to determine the key in the returned dict.</p>
@@ -1312,13 +1337,15 @@ There are a few reasons for having losses in a metrics library:
 <span class="p">})</span>
 
 <span class="c1"># same API</span>
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="c1"># same API</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">)</span>
 <span class="c1"># compute new returns a dict</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span> <span class="c1"># {&#39;acc&#39;: 0.95, &#39;f_one&#39;: 0.87}</span>
 <span class="c1"># same as compute_logs in the case</span>
 <span class="n">metrics</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;acc&#39;: 0.95, &#39;f_one&#39;: 0.87}</span>
+<span class="c1"># Reset the metrics</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>You can use nested structures of dicts and lists to group metrics, the keys of the dicts are used to determine group names. Group names and metrics names are concatenated using <code>"/"</code> e.g. <code>"{group_name}/{metric_name}"</code>.</p>
 <h4 id="losses">Losses</h4>
@@ -1329,7 +1356,7 @@ There are a few reasons for having losses in a metrics library:
 <span class="p">])</span>
 
 <span class="c1"># same API</span>
-<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="c1"># same API</span>
 <span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 <span class="c1"># compute new returns a dict</span>
@@ -1338,6 +1365,8 @@ There are a few reasons for having losses in a metrics library:
 <span class="n">losses</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;crossentropy&#39;: 0.23, &#39;l2&#39;: 0.005}</span>
 <span class="c1"># you can also compute the total loss</span>
 <span class="n">loss</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">total_loss</span><span class="p">()</span> <span class="c1"># 0.235</span>
+<span class="c1"># Reset the losses</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>As with <code>Metrics</code>, the <code>update</code> method accepts and forwards all the arguments required by the individual losses. In this example <code>target</code> and <code>preds</code> are used by the <code>Crossentropy</code>, while <code>parameters</code> is used by the <code>L2</code>. The <code>total_loss</code> method returns the sum of all values returned by <code>compute</code>.</p>
 <p>If a dictionary is used instead of a list, the keys are used instead of the <code>name</code> property of the losses to determine the key in the returned dict.</p>
@@ -1347,7 +1376,7 @@ There are a few reasons for having losses in a metrics library:
 <span class="p">})</span>
 
 <span class="c1"># same API</span>
-<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="c1"># same API</span>
 <span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
 <span class="c1"># compute new returns a dict</span>
@@ -1356,6 +1385,8 @@ There are a few reasons for having losses in a metrics library:
 <span class="n">losses</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;xent&#39;: 0.23, &#39;l_two&#39;: 0.005}</span>
 <span class="c1"># you can also compute the total loss</span>
 <span class="n">loss</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">total_loss</span><span class="p">()</span> <span class="c1"># 0.235</span>
+<span class="c1"># Reset the losses</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>If you want to use <code>Losses</code> to calculate the loss of a model, you should use <code>batch_updates</code> followed by <code>total_loss</code> to get the correct batch loss. For example, a loss function could be written as:</p>
 <p><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">losses</span><span class="p">):</span>
@@ -1387,7 +1418,7 @@ For convenience, the previous pattern can be simplified to a single line using t
 <span class="p">)</span>
 
 <span class="c1"># same API</span>
-<span class="n">losses_and_metrics</span> <span class="o">=</span> <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">losses_and_metrics</span> <span class="o">=</span> <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="c1"># same API</span>
 <span class="n">losses_and_metrics</span> <span class="o">=</span> <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
     <span class="n">target</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">preds</span><span class="o">=</span><span class="n">logits</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span>
@@ -1398,6 +1429,8 @@ For convenience, the previous pattern can be simplified to a single line using t
 <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">compute_logs</span><span class="p">()</span> <span class="c1"># {&#39;loss&#39;: 0.235, &#39;accuracy&#39;: 0.95, &#39;f1&#39;: 0.87, &#39;crossentropy&#39;: 0.23, &#39;l2&#39;: 0.005}</span>
 <span class="c1"># you can also compute the total loss</span>
 <span class="n">loss</span> <span class="o">=</span> <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">total_loss</span><span class="p">()</span> <span class="c1"># 0.235</span>
+<span class="c1"># Reset metrics </span>
+<span class="n">losses_and_metrics</span> <span class="o">=</span> <span class="n">losses_and_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 <p>Thanks to consistent naming, <code>Accuracy</code>, <code>F1</code> and <code>Crossentropy</code> all consume the same <code>target</code> and <code>preds</code> arguments, while <code>L2</code> consumes <code>parameters</code>. For convenience a <code>"loss"</code> key is added to the returned logs dictionary.</p>
 <p>If you want to use <code>LossesAndMetrics</code> to calculate the loss of a model, you should use <code>batch_updates</code> followed by <code>total_loss</code> to get the correct batch loss. For example, a loss function could be written as:</p>

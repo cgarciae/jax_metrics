@@ -840,6 +840,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jax_metrics.metrics.metric.Metric.init" class="md-nav__link">
+    init()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jax_metrics.metrics.metric.Metric.map_arg" class="md-nav__link">
     map_arg()
   </a>
@@ -1082,6 +1089,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jax_metrics.metrics.metric.Metric.init" class="md-nav__link">
+    init()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jax_metrics.metrics.metric.Metric.map_arg" class="md-nav__link">
     map_arg()
   </a>
@@ -1170,6 +1184,12 @@ given up to that point.</p>
         <span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">batch_updates</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">batch_values</span><span class="p">,</span> <span class="n">metric</span>
+
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the metric&#39;s state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
@@ -1690,6 +1710,35 @@ each loss can index into its correspoding array. This also works with</p>
 <span class="sd">        A IndexedMetric instance</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">IndexedMetric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-method">
+
+
+
+<h2 id="jax_metrics.metrics.metric.Metric.init" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Initialize the metric's state.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>jax_metrics/metrics/metric.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize the metric&#39;s state.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
         </details>
     </div>

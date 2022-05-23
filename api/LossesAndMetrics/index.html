@@ -331,6 +331,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.init" class="md-nav__link">
+    init()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.reset" class="md-nav__link">
     reset()
   </a>
@@ -1010,6 +1017,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.init" class="md-nav__link">
+    init()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.reset" class="md-nav__link">
     reset()
   </a>
@@ -1097,11 +1111,41 @@
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">aux_losses</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">aux_metrics</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">aux_losses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`aux_losses` are expected, got None.&quot;</span><span class="p">)</span>
+
+            <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">aux_losses</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`aux_losses` are not expected, got </span><span class="si">{</span><span class="n">aux_losses</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+            <span class="n">aux_losses_</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">aux_metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`aux_metrics` are expected, got None.&quot;</span><span class="p">)</span>
+
+            <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">aux_metrics</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`aux_metrics` are not expected, got </span><span class="si">{</span><span class="n">aux_metrics</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+            <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="n">aux_losses</span><span class="o">=</span><span class="n">aux_losses_</span><span class="p">,</span>
+            <span class="n">aux_metrics</span><span class="o">=</span><span class="n">aux_metrics_</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1112,12 +1156,12 @@
             <span class="n">metrics</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">aux_losses</span><span class="p">)</span>
+            <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">aux_losses_</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">aux_metrics</span><span class="p">)</span>
+            <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1346,13 +1390,70 @@ in a <code>{metric_name: metric_value}</code> dictionary.</p>
 
 
 
+  <div class="doc doc-object doc-method">
+
+
+
+<h2 id="jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.init" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">aux_losses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aux_metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Initialize the metric's state.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>jax_metrics/metrics/losses_and_metrics.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">aux_losses</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">aux_metrics</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aux_losses</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`aux_losses` are expected, got None.&quot;</span><span class="p">)</span>
+
+        <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">aux_losses</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`aux_losses` are not expected, got </span><span class="si">{</span><span class="n">aux_losses</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="n">aux_losses_</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aux_metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`aux_metrics` are expected, got None.&quot;</span><span class="p">)</span>
+
+        <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">aux_metrics</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;`aux_metrics` are not expected, got </span><span class="si">{</span><span class="n">aux_metrics</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">aux_losses</span><span class="o">=</span><span class="n">aux_losses_</span><span class="p">,</span>
+        <span class="n">aux_metrics</span><span class="o">=</span><span class="n">aux_metrics_</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
 
   <div class="doc doc-object doc-method">
 
 
 
 <h2 id="jax_metrics.metrics.losses_and_metrics.LossesAndMetrics.reset" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aux_losses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aux_metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
 
 
 </h2>
@@ -1378,11 +1479,7 @@ in a <code>{metric_name: metric_value}</code> dictionary.</p>
 </table>
         <details class="quote">
           <summary>Source code in <code>jax_metrics/metrics/losses_and_metrics.py</code></summary>
-          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span>
-    <span class="n">aux_losses</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">aux_metrics</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">tp</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">M</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">M</span><span class="p">:</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">losses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1393,12 +1490,12 @@ in a <code>{metric_name: metric_value}</code> dictionary.</p>
         <span class="n">metrics</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">aux_losses</span><span class="p">)</span>
+        <span class="n">aux_losses_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_losses</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">aux_losses_</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">aux_metrics</span><span class="p">)</span>
+        <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aux_metrics</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">aux_metrics_</span> <span class="o">=</span> <span class="kc">None</span>
 
