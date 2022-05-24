@@ -1,4 +1,4 @@
-__version__ = "0.0.0"
+__version__ = "0.1.1"
 
 
 from jax_metrics.losses import Loss
