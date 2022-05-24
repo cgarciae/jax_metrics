@@ -147,7 +147,7 @@ There are a few reasons for having losses in a metrics library:
 </details>
 
 ### Combinators
-Combinators as instances of `Metric` that enable you to group together multiple instances while maintaining the same API.
+Combinators enable you to group together multiple metrics while also being instances of `Metric` and thus maintaining the same API.
 #### Metrics
 The `Metrics` combinator lets you combine multiple metrics into a single metric.
 
