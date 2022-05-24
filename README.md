@@ -149,7 +149,7 @@ There are a few reasons for having losses in a metrics library:
 ### Combinators
 Combinators enable you to group together multiple metrics while also being instances of `Metric` and thus maintaining the same API.
 #### Metrics
-The `Metrics` combinator lets you combine multiple metrics into a single metric.
+The `Metrics` combinator lets you combine multiple metrics into a single Metric object.
 
 ```python
 metrics = jm.Metrics([
