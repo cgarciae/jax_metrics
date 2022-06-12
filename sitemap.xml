@@ -2,202 +2,202 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/Loss/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/Losses/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/LossesAndMetrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/Metric/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/Metrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/Named/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/CosineSimilarity/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/Crossentropy/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/Huber/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/Loss/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/MeanAbsoluteError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/MeanAbsolutePercentageError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/MeanSquaredError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/MeanSquaredLogarithmicError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/Reduction/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/cosine_similarity/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/crossentropy/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/huber/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/mean_absolute_error/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/mean_absolute_percentage_error/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/mean_squared_error/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/losses/mean_squared_logarithmic_error/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Accuracy/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/AuxLosses/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/AuxMetrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Losses/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/LossesAndMetrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/MAE/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/MSE/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Mean/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/MeanAbsoluteError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/MeanSquareError/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Metric/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Metrics/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Reduce/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/metrics/Reduction/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/regularizers/L1/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/regularizers/L1L2/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://cgarciae.github.io/jax_metrics/api/regularizers/L2/</loc>
-         <lastmod>2022-05-23</lastmod>
+         <lastmod>2022-06-12</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

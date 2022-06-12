@@ -1310,9 +1310,9 @@ There are a few reasons for having losses in a metrics library:
 </details>
 
 <h3 id="combinators">Combinators</h3>
-<p>Combinators as instances of <code>Metric</code> that enable you to group together multiple instances while maintaining the same API.</p>
+<p>Combinators enable you to group together multiple metrics while also being instances of <code>Metric</code> and thus maintaining the same API.</p>
 <h4 id="metrics">Metrics</h4>
-<p>The <code>Metrics</code> combinator lets you combine multiple metrics into a single metric.</p>
+<p>The <code>Metrics</code> combinator lets you combine multiple metrics into a single Metric object.</p>
 <div class="highlight"><pre><span></span><code><span class="n">metrics</span> <span class="o">=</span> <span class="n">jm</span><span class="o">.</span><span class="n">Metrics</span><span class="p">([</span>
     <span class="n">jm</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">(),</span>
     <span class="n">jm</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1</span><span class="p">(),</span> <span class="c1"># not yet implemented 😅, coming soon?</span>
