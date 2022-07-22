@@ -32,6 +32,7 @@ nav:
       Accuracy: api/metrics/Accuracy.md
       AuxLosses: api/metrics/AuxLosses.md
       AuxMetrics: api/metrics/AuxMetrics.md
+      FBeta: api/metrics/FBeta.md
       Losses: api/metrics/Losses.md
       LossesAndMetrics: api/metrics/LossesAndMetrics.md
       MAE: api/metrics/MAE.md

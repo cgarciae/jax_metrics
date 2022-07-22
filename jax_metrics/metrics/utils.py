@@ -46,6 +46,12 @@ class MDMCAverageMethod(enum.Enum):
     SAMPLEWISE = enum.auto()
 
 
+def _safe_divide(num: jnp.ndarray, denom: jnp.ndarray) -> jnp.ndarray:
+    """prevent zero division."""
+    out = num / denom
+    return jnp.where(jnp.isnan(out), 1, out)
+
+
 def _input_squeeze(
     preds: jnp.ndarray,
     target: jnp.ndarray,
@@ -125,7 +131,6 @@ def _stat_scores_update(
             target = jnp.swapaxes(target, 1, 2).reshape(-1, target.shape[1])
 
     tp, fp, tn, fn = _stat_scores(preds, target, reduce=average_method)
-
     return tp, fp, tn, fn
 
 
@@ -747,6 +752,89 @@ def _accuracy_compute(
     )
 
 
+def _fbeta_compute(
+    tp: jnp.ndarray,
+    fp: jnp.ndarray,
+    tn: jnp.ndarray,
+    fn: jnp.ndarray,
+    beta: float,
+    ignore_index: tp.Optional[int],
+    average: tp.Optional[AverageMethod],
+    mdmc_average: tp.Optional[MDMCAverageMethod],
+    mode: DataType,
+) -> jnp.ndarray:
+    """Computes f_beta from stat scores: true positives, false positives, true negatives, false negatives.
+
+    Args:
+        tp: True positives
+        fp: False positives
+        tn: True negatives
+        fn: False negatives
+        average: Defines the reduction that is applied.
+        mdmc_average: Defines how averaging is done for multi-dimensional multi-class inputs (on top of the
+            ``average`` parameter).
+        mode: Mode of the input tensors
+
+    """
+    if average == AverageMethod.MICRO and mdmc_average != MDMCAverageMethod.SAMPLEWISE:
+        # mask = tp >= 0    #Disabled for JIT
+        precision = _safe_divide(tp.sum(), (tp + fp).sum())
+        recall = _safe_divide(tp.sum(), (tp + fn).sum())
+    else:
+        precision = _safe_divide(tp, tp + fp)
+        recall = _safe_divide(tp, tp + fn)
+
+    num = (1 + beta**2) * precision * recall
+    denom = beta**2 * precision + recall
+    denom = jnp.where(denom == 0, 1.0, denom)  # avoid division by 0
+
+    meaningless_indeces = None
+    # if classes matter and a given class is not present in both the preds and the target,
+    # computing the score for this class is meaningless, thus they should be ignored
+    if average == AverageMethod.NONE and mdmc_average != MDMCAverageMethod.SAMPLEWISE:
+        # a class is not present if there exists no TPs, no FPs, and no FNs
+        meaningless_indeces = jnp.where(tp * fn * fp > 0, True, False)
+
+        if ignore_index is None:
+            ignore_index = meaningless_indeces
+        else:
+            ignore_index = jax.lax.dynamic_update_index_in_dim(
+                meaningless_indeces, False, ignore_index, axis=0
+            )
+
+    if ignore_index is not None:
+        if (
+            average not in (AverageMethod.MICRO, AverageMethod.SAMPLES)
+            and mdmc_average == MDMCAverageMethod.SAMPLEWISE
+        ):
+            pass
+            # TODO: Support for SAMPLEWISE
+            num[..., ignore_index] = -1
+            denom[..., ignore_index] = -1
+        if average not in (AverageMethod.MICRO, AverageMethod.SAMPLES):
+            if not meaningless_indeces:
+                ignore_index = jax.lax.dynamic_update_index_in_dim(
+                    jnp.ones(tp.shape, dtype=bool), False, ignore_index, axis=0
+                )
+            num = jnp.where(ignore_index, num, -1)
+            denom = jnp.where(ignore_index, denom, -1)
+            # num[ignore_index, ...] = -1
+            # denom[ignore_index, ...] = -1
+
+    if average == AverageMethod.MACRO and mdmc_average != MDMCAverageMethod.SAMPLEWISE:
+        cond = (tp + fp + fn == 0) | (tp + fp + fn == -3)
+        num = num[~cond]
+        denom = denom[~cond]
+
+    return _reduce_stat_scores(
+        numerator=num,
+        denominator=denom,
+        weights=None if average != AverageMethod.WEIGHTED else tp + fn,
+        average=average,
+        mdmc_average=mdmc_average,
+    )
+
+
 def _reduce_stat_scores(
     numerator: jnp.ndarray,
     denominator: jnp.ndarray,
@@ -803,7 +891,6 @@ def _reduce_stat_scores(
     scores = jnp.where(
         jnp.isnan(scores), jnp.array(float(zero_division), dtype=scores.dtype), scores
     )
-
     if mdmc_average == MDMCAverageMethod.SAMPLEWISE:
         scores = scores.mean(axis=0)
         ignore_mask = ignore_mask.sum(axis=0).astype(jnp.bool_)
@@ -814,5 +901,4 @@ def _reduce_stat_scores(
         )
     else:
         scores = scores.sum()
-
     return scores

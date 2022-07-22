@@ -1,4 +1,5 @@
 from .accuracy import Accuracy
+from .f_beta import F1, FBeta
 from .losses import AuxLosses, Losses
 from .losses_and_metrics import LossesAndMetrics
 from .mean import Mean
@@ -13,6 +14,8 @@ MSE = MeanSquareError
 
 __all__ = [
     "Accuracy",
+    "F1",
+    "FBeta",
     "LossesAndMetrics",
     "Losses",
     "AuxLosses",

@@ -159,3 +159,6 @@ tmp/
 
 # ignore api docs
 /docs/api/
+
+# ide
+.idea
