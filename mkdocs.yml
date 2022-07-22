@@ -29,7 +29,7 @@ nav:
       mean_squared_error: api/losses/mean_squared_error.md
       mean_squared_logarithmic_error: api/losses/mean_squared_logarithmic_error.md
     metrics:
-      Accuracy: api/metrics/Accurapymdownxcy.md
+      Accuracy: api/metrics/Accuracy.md
       AuxLosses: api/metrics/AuxLosses.md
       AuxMetrics: api/metrics/AuxMetrics.md
       FBeta: api/metrics/FBeta.md
