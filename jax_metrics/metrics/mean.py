@@ -45,17 +45,14 @@ class Mean(Reduce):
 
     def __init__(
         self,
-        name: tp.Optional[str] = None,
         dtype: tp.Optional[jnp.dtype] = None,
     ):
         """Creates a `Mean` instance.
         Arguments:
-
-            kwargs: Additional keyword arguments passed to Module.
+            dtype: (Optional) data type of the metric result. Defaults to `float32`.
         """
         super().__init__(
             reduction=Reduction.weighted_mean,
-            name=name,
             dtype=dtype,
         )
 

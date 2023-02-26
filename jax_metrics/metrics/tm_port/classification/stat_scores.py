@@ -120,10 +120,10 @@ class StatScores(Metric):
         tensor([2, 2, 6, 2, 4])
 
     """
-    tp: Union[Tensor, List[Tensor]] = to.node()
-    fp: Union[Tensor, List[Tensor]] = to.node()
-    tn: Union[Tensor, List[Tensor]] = to.node()
-    fn: Union[Tensor, List[Tensor]] = to.node()
+    tp: Union[Tensor, List[Tensor]] = field()
+    fp: Union[Tensor, List[Tensor]] = field()
+    tn: Union[Tensor, List[Tensor]] = field()
+    fn: Union[Tensor, List[Tensor]] = field()
     is_differentiable = False
     # TODO: canot be used because if scripting
 

@@ -10,11 +10,10 @@ import jax_metrics as jm
 
 class TestMSE:
     def test_mse_basic(self):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
-        mse_tx = jm.metrics.MeanSquareError().reset()
+        mse_tx = jm.metrics.MeanSquareError()
         mse_tx_value, mse_tx = mse_tx(target=target, preds=preds)
 
         mse_tm = tm.MeanSquaredError()
@@ -22,7 +21,7 @@ class TestMSE:
         assert np.isclose(np.array(mse_tx_value), mse_tm_value.numpy())
 
     def test_accumulative_mse(self):
-        mse_tx = jm.metrics.MeanSquareError().reset()
+        mse_tx = jm.metrics.MeanSquareError()
         mse_tm = tm.MeanSquaredError()
 
         for batch in range(2):
@@ -38,19 +37,13 @@ class TestMSE:
         )
 
     def test_mse_short(self):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
         mse_tx_long = (
-            jm.metrics.MeanSquareError()
-            .reset()
-            .update(target=target, preds=preds)
-            .compute()
+            jm.metrics.MeanSquareError().update(target=target, preds=preds).compute()
         )
-        mse_tx_short = (
-            jm.metrics.MSE().reset().update(target=target, preds=preds).compute()
-        )
+        mse_tx_short = jm.metrics.MSE().update(target=target, preds=preds).compute()
         assert np.isclose(np.array(mse_tx_long), np.array(mse_tx_short))
 
     @hp.given(
@@ -58,7 +51,6 @@ class TestMSE:
     )
     @hp.settings(deadline=None, max_examples=10)
     def test_mse_weights(self, use_sample_weight):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
@@ -86,7 +78,6 @@ class TestMSE:
     )
     @hp.settings(deadline=None, max_examples=10)
     def test_mse_weights_values_dim(self, use_sample_weight):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 

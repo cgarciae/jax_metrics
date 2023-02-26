@@ -1,7 +1,7 @@
 from typing import Any, Callable, Optional
 
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import static_field, field
 
 from jax_metrics import types
 
@@ -157,8 +157,8 @@ class Accuracy(StatScores):
 
     """
     mode: Optional[DataType]
-    correct: Tensor = to.node()
-    total: Tensor = to.node()
+    correct: Tensor = field()
+    total: Tensor = field()
 
     is_differentiable = False
 

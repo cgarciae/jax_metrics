@@ -9,7 +9,6 @@ from jax_metrics import losses
 
 class TestLosses:
     def test_list(self):
-
         N = 0
 
         @jax.jit
@@ -19,11 +18,11 @@ class TestLosses:
             return m.loss_and_update(target=target, preds=preds)
 
         losses = jm.metrics.Losses(
-            [
-                jm.losses.MeanSquaredError(),
-                jm.losses.MeanSquaredError(),
-            ]
-        ).reset()
+            dict(
+                mean_squared_error=jm.losses.MeanSquaredError(),
+                mean_squared_error2=jm.losses.MeanSquaredError(),
+            )
+        )
         target = jnp.array([0.0, 0.0, 0.0, 0.0])[None, None, None, :]
         preds = jnp.array([1.0, 1.0, 1.0, 1.0])[None, None, None, :]
 
@@ -44,7 +43,6 @@ class TestLosses:
         }
 
     def test_dict(self):
-
         N = 0
 
         @jax.jit
@@ -64,76 +62,8 @@ class TestLosses:
 
         loss, losses = f(losses, target, preds)
         assert N == 1
-        assert loss, losses.compute() == (
-            2.0,
-            {
-                "a/mean_squared_error_loss": 1.0,
-                "b/mean_squared_error_loss": 1.0,
-            },
-        )
+        assert (loss, losses.compute()) == (2.0, {"a": 1.0, "b": 1.0})
 
         loss, losses = f(losses, target, preds)
         assert N == 1
-        assert loss, losses.compute() == (
-            2.0,
-            {
-                "a/mean_squared_error_loss": 1.0,
-                "b/mean_squared_error_loss": 1.0,
-            },
-        )
-
-
-class TestAuxLosses:
-    def test_basic(self):
-
-        N = 0
-
-        @jax.jit
-        def f(aux_losses: jm.metrics.AuxLosses, value):
-            nonlocal N
-            N += 1
-            loss_logs = {"aux": value}
-            return aux_losses.loss_and_update(aux_values=loss_logs)
-
-        loss_logs = {"aux": jnp.array(1.0, jnp.float32)}
-        losses = jm.metrics.AuxLosses().init(loss_logs)
-
-        value = jnp.array(1.0, jnp.float32)
-        loss, losses = f(losses, value)
-        assert N == 1
-        assert np.isclose(loss, 1.0)
-        assert np.isclose(losses.compute()["aux"], 1.0)
-
-        value = jnp.array(0.0, jnp.float32)
-        loss, losses = f(losses, value)
-
-        assert N == 1
-        assert np.isclose(loss, 0.0)
-        assert np.isclose(losses.compute()["aux"], 0.5)
-
-    def test_named(self):
-
-        N = 0
-
-        @jax.jit
-        def f(aux_losses: jm.metrics.AuxLosses, value):
-            nonlocal N
-            N += 1
-            loss_logs = {"my_loss": value}
-            return aux_losses.loss_and_update(aux_values=loss_logs)
-
-        loss_logs = {"my_loss": jnp.array(0.0, jnp.float32)}
-        losses = jm.metrics.AuxLosses().init(loss_logs)
-
-        value = jnp.array(1.0, jnp.float32)
-        loss, losses = f(losses, value)
-        assert N == 1
-        assert np.isclose(loss, 1.0)
-        assert np.isclose(losses.compute()["my_loss"], 1.0)
-
-        value = jnp.array(0.0, jnp.float32)
-        loss, losses = f(losses, value)
-
-        assert N == 1
-        assert np.isclose(loss, 0.0)
-        assert np.isclose(losses.compute()["my_loss"], 0.5)
+        assert (loss, losses.compute()) == (2.0, {"a": 1.0, "b": 1.0})

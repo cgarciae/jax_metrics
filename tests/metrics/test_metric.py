@@ -1,16 +1,18 @@
+import dataclasses
 import inspect
 import typing as tp
 
 import jax
 import pytest
-import treeo as to
+from simple_pytree import static_field, field
 
 import jax_metrics as jm
 
 
-class MyMetric(jm.Metric):
-    target: tp.Optional[int] = to.node(None)
-    preds: tp.Optional[int] = to.node(None)
+@dataclasses.dataclass
+class MyMetric(jm.SumMetric):
+    target: int = 0
+    preds: int = 0
 
     def reset(self):
         return self.replace(
@@ -30,7 +32,6 @@ class MyMetric(jm.Metric):
 
 class TestMetric:
     def test_basic(self):
-
         metric = MyMetric()
 
         metric = metric.reset()
@@ -52,8 +53,7 @@ class TestMetric:
         assert metric.preds == 26
 
     def test_on(self):
-
-        metric = MyMetric().index_into(target=("a", 0), preds=("a", 0)).reset()
+        metric = MyMetric().index_into(target=("a", 0), preds=("a", 0))
 
         target = {"a": [10]}
         preds = {"a": [20]}
@@ -63,7 +63,6 @@ class TestMetric:
         assert values == (10, 20)
 
     def test_raise_positional_arguments(self):
-
         metric = MyMetric().index_into(target=("a", 0), preds=("a", 0))
 
         target = {"a": [10]}
@@ -73,12 +72,9 @@ class TestMetric:
             metric(target, preds)
 
     def test_jit(self):
-        class MyMetric(jm.Metric):
-            a: tp.Optional[int] = to.node()
-
-            def __init__(self) -> None:
-                self.a = None
-                super().__init__()
+        @dataclasses.dataclass
+        class MyMetric(jm.SumMetric):
+            a: tp.Optional[int] = None
 
             def reset(self):
                 return self.replace(a=0)

@@ -2,7 +2,7 @@ import typing as tp
 
 import jax
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import static_field, field
 
 from jax_metrics import types
 from jax_metrics.losses.loss import Loss, Reduction

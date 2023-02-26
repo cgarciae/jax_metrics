@@ -50,7 +50,7 @@ class MeanAbsoluteError(Mean):
         >>> mae(preds, target)
 
         """
-        super().__init__(name=name, dtype=dtype)
+        super().__init__(dtype=dtype)
 
     def update(
         self,

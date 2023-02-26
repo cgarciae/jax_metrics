@@ -26,7 +26,6 @@ def _mean_square_error(preds: jnp.ndarray, target: jnp.ndarray) -> jnp.ndarray:
 class MeanSquareError(Mean):
     def __init__(
         self,
-        name: tp.Optional[str] = None,
         dtype: tp.Optional[jnp.dtype] = None,
     ):
         """
@@ -52,7 +51,7 @@ class MeanSquareError(Mean):
         >>> mse(preds, target)
 
         """
-        super().__init__(name=name, dtype=dtype)
+        super().__init__(dtype=dtype)
 
     def update(
         self: M,

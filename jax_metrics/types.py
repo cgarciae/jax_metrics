@@ -5,7 +5,7 @@ import jax
 import jax.numpy as jnp
 import jax.tree_util
 import numpy as np
-import treeo as to
+from simple_pytree import static_field, field
 import typing_extensions as tpe
 
 A = tp.TypeVar("A")

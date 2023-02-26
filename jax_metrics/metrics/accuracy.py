@@ -1,16 +1,16 @@
-import typing
-import typing as tp
+from typing import Dict, Optional, Union
+import jax
 
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import static_field
 
 from jax_metrics import types
 from jax_metrics.metrics import utils as metric_utils
-from jax_metrics.metrics.metric import Metric
+from jax_metrics.metrics.metric import SumMetric
 from jax_metrics.metrics.utils import AverageMethod, DataType, MDMCAverageMethod
 
 
-class Accuracy(Metric):
+class Accuracy(SumMetric):
     r"""
     Computes Accuracy, ported from [torchmetrics](https://github.com/PytorchLightning/metrics).
 
@@ -120,32 +120,37 @@ class Accuracy(Metric):
 
 
     """
-    tp: typing.Optional[jnp.ndarray] = to.node()
-    fp: typing.Optional[jnp.ndarray] = to.node()
-    tn: typing.Optional[jnp.ndarray] = to.node()
-    fn: typing.Optional[jnp.ndarray] = to.node()
+    tp: jnp.ndarray
+    fp: jnp.ndarray
+    tn: jnp.ndarray
+    fn: jnp.ndarray
+
+    average: AverageMethod = static_field()
+    mdmc_average: MDMCAverageMethod = static_field()
+    num_classes: Optional[int] = static_field()
+    threshold: float = static_field()
+    multiclass: Optional[bool] = static_field()
+    ignore_index: Optional[int] = static_field()
+    top_k: Optional[int] = static_field()
+    subset_accuracy: bool = static_field()
+    mode: DataType = static_field()
 
     def __init__(
         self,
         threshold: float = 0.5,
-        num_classes: typing.Optional[int] = None,
-        average: typing.Union[str, AverageMethod] = AverageMethod.MICRO,
-        mdmc_average: typing.Union[str, MDMCAverageMethod] = MDMCAverageMethod.GLOBAL,
-        ignore_index: typing.Optional[int] = None,
-        top_k: typing.Optional[int] = None,
-        multiclass: typing.Optional[bool] = None,
+        num_classes: Optional[int] = None,
+        average: Union[str, AverageMethod] = AverageMethod.MICRO,
+        mdmc_average: Union[str, MDMCAverageMethod] = MDMCAverageMethod.GLOBAL,
+        ignore_index: Optional[int] = None,
+        top_k: Optional[int] = None,
+        multiclass: Optional[bool] = None,
         subset_accuracy: bool = False,
         # compute_on_step: bool = True,
         # dist_sync_on_step: bool = False,
-        # process_group: typing.Optional[typing.Any] = None,
-        # dist_sync_fn: typing.Callable = None,
+        # process_group: Optional[Any] = None,
+        # dist_sync_fn: Callable = None,
         mode: DataType = DataType.MULTICLASS,
-        name: typing.Optional[str] = None,
-        dtype: typing.Optional[jnp.dtype] = None,
     ):
-
-        super().__init__(name=name, dtype=dtype)
-
         if isinstance(average, str):
             average = AverageMethod[average.upper()]
 
@@ -203,12 +208,9 @@ class Accuracy(Metric):
         self.subset_accuracy = subset_accuracy
         self.mode = mode
 
-        self.tp = None
-        self.fp = None
-        self.tn = None
-        self.fn = None
+        self.__dict__.update(self._initial_values())
 
-    def reset(self) -> "Accuracy":
+    def _initial_values(self) -> Dict[str, jax.Array]:
         # nodes
         if self.average == AverageMethod.MICRO:
             zeros_shape = []
@@ -219,12 +221,15 @@ class Accuracy(Metric):
 
         initial_value = jnp.zeros(zeros_shape, dtype=jnp.uint32)
 
-        return self.replace(
+        return dict(
             tp=initial_value,
             fp=initial_value,
             tn=initial_value,
             fn=initial_value,
         )
+
+    def reset(self):
+        return self.replace(**self._initial_values())
 
     def update(self, preds: jnp.ndarray, target: jnp.ndarray, **_) -> "Accuracy":
         """Updates Accuracy metric state.
