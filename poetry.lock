@@ -2285,21 +2285,19 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "simple-pytree"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 category = "main"
 optional = false
-python-versions = "^3.8"
-files = []
-develop = true
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "simple_pytree-0.1.3-py3-none-any.whl", hash = "sha256:429936ecc3559af75ef14695d9ec7539410ca8cd3d4a91340efaede5b747fd4c"},
+    {file = "simple_pytree-0.1.3.tar.gz", hash = "sha256:4b5d4ee43627df1f9b4ecf68b7ae393d03d6479cdb1e3271a9132f1eaecfe4f8"},
+]
 
 [package.dependencies]
 jax = "*"
 jaxlib = "*"
-
-[package.source]
-type = "directory"
-url = "../simple-pytree"
 
 [[package]]
 name = "six"
@@ -2891,4 +2889,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "161eab50c8b6c5cb1eca2e83323ee8089539bda7febd1cab2365b674ac839276"
+content-hash = "53baace429192f06b752b806c3a4563023da883a4c21f470638cb09ed29d69ea"
