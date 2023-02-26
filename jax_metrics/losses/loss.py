@@ -5,6 +5,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 from enum import Enum
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from numpy.lib.arraysetops import isin
@@ -49,8 +50,8 @@ class Reduction(Enum):
 
 
 def reduce_loss(
-    values: jnp.ndarray, sample_weight: tp.Optional[jnp.ndarray], weight, reduction
-) -> jnp.ndarray:
+    values: jax.Array, sample_weight: tp.Optional[jax.Array], weight, reduction
+) -> jax.Array:
     values = jnp.asarray(values)
 
     if sample_weight is not None:
@@ -97,7 +98,6 @@ class Loss(ABC):
         self,
         reduction: tp.Optional[Reduction] = None,
         weight: tp.Optional[types.ScalarLike] = None,
-        name: tp.Optional[str] = None,
     ):
         """
         Initializes `Loss` class.
@@ -107,10 +107,7 @@ class Loss(ABC):
                 loss. Default value is `SUM_OVER_BATCH_SIZE`. For almost all cases
                 this defaults to `SUM_OVER_BATCH_SIZE`.
             weight: Optional weight contribution for the total loss. Defaults to `1`.
-            name: Optional name for the instance, if not provided lower snake_case version
-                of the name of the class is used instead.
         """
-        self.name = name if name is not None else utils._get_name(self)
         self.weight = (
             jnp.asarray(weight, dtype=jnp.float32)
             if weight is not None
@@ -123,15 +120,15 @@ class Loss(ABC):
     def __call__(
         self,
         **kwargs,
-    ) -> jnp.ndarray:
-        sample_weight: tp.Optional[jnp.ndarray] = kwargs.pop("sample_weight", None)
+    ) -> jax.Array:
+        sample_weight: tp.Optional[jax.Array] = kwargs.pop("sample_weight", None)
 
         values = self.call(**kwargs)
 
         return reduce_loss(values, sample_weight, self.weight, self.reduction)
 
     @abstractmethod
-    def call(self, **kwargs) -> jnp.ndarray:
+    def call(self, **kwargs) -> jax.Array:
         ...
 
     def index_into(self, **kwargs: types.IndexLike) -> "IndexedLoss":
@@ -199,7 +196,7 @@ class IndexedLoss(Loss):
         loss: Loss,
         arg_slice: tp.Dict[str, types.IndexLike],
     ):
-        super().__init__(name=loss.name, weight=None, reduction=Reduction.NONE)
+        super().__init__(weight=None, reduction=Reduction.NONE)
         self.loss = loss
         self.arg_slice = {
             key: tuple([index])
@@ -211,11 +208,11 @@ class IndexedLoss(Loss):
     def __call__(
         self,
         **kwargs,
-    ) -> jnp.ndarray:
+    ) -> jax.Array:
         kwargs = self._slice_kwargs(kwargs)
         return self.loss(**kwargs)
 
-    def call(self, **kwargs) -> jnp.ndarray:
+    def call(self, **kwargs) -> jax.Array:
         kwargs = self._slice_kwargs(kwargs)
         return self.loss.call(**kwargs)
 
@@ -234,18 +231,17 @@ class MapArgsLoss(Loss):
 
     def __init__(self, loss: Loss, args_map: tp.Dict[str, str]):
         super().__init__(
-            name=loss.name,
             weight=None,
             reduction=Reduction.NONE,
         )
         self.loss = loss
         self.args_map = args_map
 
-    def __call__(self, **kwargs) -> jnp.ndarray:
+    def __call__(self, **kwargs) -> jax.Array:
         kwargs = self._map_kwargs(kwargs)
         return super().__call__(**kwargs)
 
-    def call(self, **kwargs) -> jnp.ndarray:
+    def call(self, **kwargs) -> jax.Array:
         kwargs = self._map_kwargs(kwargs)
         return self.loss.call(**kwargs)
 

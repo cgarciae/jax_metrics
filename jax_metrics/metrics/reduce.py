@@ -21,8 +21,8 @@ class Reduction(enum.Enum):
 class Reduce(SumMetric):
     """Encapsulates metrics that perform a reduce operation on the values."""
 
-    total: jnp.ndarray
-    count: tp.Optional[jnp.ndarray]
+    total: jax.Array
+    count: tp.Optional[jax.Array]
     reduction: Reduction = static_field()
     dtype: jnp.dtype = static_field()
 
@@ -69,8 +69,8 @@ class Reduce(SumMetric):
 
     def update(
         self: M,
-        values: jnp.ndarray,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        values: jax.Array,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
     ) -> M:
         """
@@ -137,7 +137,7 @@ class Reduce(SumMetric):
 
         return self.replace(total=total, count=count)
 
-    def compute(self) -> jnp.ndarray:
+    def compute(self) -> jax.Array:
         if self.total is None:
             raise self._not_initialized_error()
 

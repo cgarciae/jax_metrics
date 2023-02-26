@@ -1,4 +1,5 @@
 import hypothesis as hp
+import jax
 import jax.numpy as jnp
 import numpy as np
 import torch
@@ -62,7 +63,7 @@ class TestMAE:
 
         mae_tx, _ = jm.metrics.MeanAbsoluteError().reset()(**params)
 
-        assert isinstance(mae_tx, jnp.ndarray)
+        assert isinstance(mae_tx, jax.Array)
 
     def test_accumulative_mae(self):
         mae_tx = jm.metrics.MeanAbsoluteError().reset()

@@ -5,7 +5,7 @@ from simple_pytree import field, static_field
 
 from jax_metrics import types
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 tensor = jnp.array
 
 from jax_metrics.metrics.tm_port.classification.stat_scores import StatScores

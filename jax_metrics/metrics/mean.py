@@ -1,5 +1,6 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types
@@ -58,8 +59,8 @@ class Mean(Reduce):
 
     def update(
         self: M,
-        values: jnp.ndarray,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        values: jax.Array,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
     ) -> M:
         """

@@ -16,8 +16,8 @@ LossFn = tp.Callable[..., jax.Array]
 
 
 class Losses(SumMetric):
-    totals: tp.Dict[str, jnp.ndarray]
-    counts: tp.Dict[str, jnp.ndarray]
+    totals: tp.Dict[str, jax.Array]
+    counts: tp.Dict[str, jax.Array]
     losses: tp.Dict[str, LossFn] = static_field()
 
     def __init__(
@@ -43,13 +43,13 @@ class Losses(SumMetric):
 
         return self.replace(totals=totals, counts=counts)
 
-    def compute(self) -> tp.Dict[str, jnp.ndarray]:
+    def compute(self) -> tp.Dict[str, jax.Array]:
         return {name: self.totals[name] / self.counts[name] for name in self.losses}
 
-    def total_loss(self) -> jnp.ndarray:
+    def total_loss(self) -> jax.Array:
         return sum(self.compute().values(), jnp.array(0.0))
 
-    def loss_and_update(self: M, **kwargs) -> tp.Tuple[jnp.ndarray, M]:
+    def loss_and_update(self: M, **kwargs) -> tp.Tuple[jax.Array, M]:
         batch_updates = self.batch_updates(**kwargs)
         loss = batch_updates.total_loss()
         metrics = self.merge(batch_updates)

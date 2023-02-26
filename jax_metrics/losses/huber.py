@@ -1,12 +1,13 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types
 from jax_metrics.losses.loss import Loss, Reduction
 
 
-def huber(target: jnp.ndarray, preds: jnp.ndarray, delta: float) -> jnp.ndarray:
+def huber(target: jax.Array, preds: jax.Array, delta: float) -> jax.Array:
     r"""
     Computes the Huber loss between target and predictions.
     
@@ -136,7 +137,6 @@ class Huber(Loss):
         delta: float = 1.0,
         reduction: tp.Optional[Reduction] = None,
         weight: tp.Optional[float] = None,
-        **kwargs,
     ):
         """
         Initializes `Mean` class.
@@ -147,20 +147,19 @@ class Huber(Loss):
                 loss. Default value is `SUM_OVER_BATCH_SIZE`. For almost all cases
                 this defaults to `SUM_OVER_BATCH_SIZE`.
             weight: Optional weight contribution for the total loss. Defaults to `1`.
-
         """
         self.delta = delta
-        return super().__init__(reduction=reduction, weight=weight, **kwargs)
+        return super().__init__(reduction=reduction, weight=weight)
 
     def call(
         self,
-        target: jnp.ndarray,
-        preds: jnp.ndarray,
+        target: jax.Array,
+        preds: jax.Array,
         sample_weight: tp.Optional[
-            jnp.ndarray
+            jax.Array
         ] = None,  # not used, __call__ handles it, left for documentation purposes.
         **_,
-    ) -> jnp.ndarray:
+    ) -> jax.Array:
         """
         Invokes the `Huber` instance.
 

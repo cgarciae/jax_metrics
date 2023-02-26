@@ -89,7 +89,7 @@ class TestAuxMetrics:
         N = 0
 
         @jax.jit
-        def f(aux_metrics: jm.AuxMetrics, value: jnp.ndarray):
+        def f(aux_metrics: jm.AuxMetrics, value: jax.Array):
             nonlocal N
             N += 1
             metric_logs = {"my_metric": value}

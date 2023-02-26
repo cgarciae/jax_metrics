@@ -1,4 +1,5 @@
 import hypothesis as hp
+import jax
 import jax.numpy as jnp
 import numpy as np
 import torch
@@ -88,4 +89,4 @@ class TestMSE:
 
         mse_tx, _ = jm.metrics.MeanSquareError()(**params)
 
-        assert isinstance(mse_tx, jnp.ndarray)
+        assert isinstance(mse_tx, jax.Array)

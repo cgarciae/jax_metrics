@@ -1,5 +1,6 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types
@@ -8,7 +9,7 @@ from jax_metrics.metrics.mean import Mean
 M = tp.TypeVar("M", bound="MeanSquareError")
 
 
-def _mean_square_error(preds: jnp.ndarray, target: jnp.ndarray) -> jnp.ndarray:
+def _mean_square_error(preds: jax.Array, target: jax.Array) -> jax.Array:
     """Calculates values required to update/compute Mean Square Error. Cast preds to have the same type as target.
 
     Args:
@@ -16,7 +17,7 @@ def _mean_square_error(preds: jnp.ndarray, target: jnp.ndarray) -> jnp.ndarray:
         target: Ground truth tensor
 
     Returns:
-        jnp.ndarray values needed to update Mean Square Error
+        jax.Array values needed to update Mean Square Error
     """
 
     target = target.astype(preds.dtype)
@@ -55,9 +56,9 @@ class MeanSquareError(Mean):
 
     def update(
         self: M,
-        target: jnp.ndarray,
-        preds: jnp.ndarray,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        target: jax.Array,
+        preds: jax.Array,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
     ) -> M:
         """

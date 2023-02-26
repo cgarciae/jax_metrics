@@ -1,14 +1,13 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types, utils
 from jax_metrics.losses.loss import Loss, Reduction
 
 
-def cosine_similarity(
-    target: jnp.ndarray, preds: jnp.ndarray, axis: int
-) -> jnp.ndarray:
+def cosine_similarity(target: jax.Array, preds: jax.Array, axis: int) -> jax.Array:
     """
     Computes the cosine similarity between target and predictions.
 
@@ -99,7 +98,6 @@ class CosineSimilarity(Loss):
         axis: int = -1,
         reduction: tp.Optional[Reduction] = None,
         weight: tp.Optional[float] = None,
-        **kwargs,
     ):
         """
         Initializes `Mean` class.
@@ -113,17 +111,17 @@ class CosineSimilarity(Loss):
             weight: Optional weight contribution for the total loss. Defaults to `1`.
         """
         self.axis = axis
-        return super().__init__(reduction=reduction, weight=weight, **kwargs)
+        return super().__init__(reduction=reduction, weight=weight)
 
     def call(
         self,
-        target: jnp.ndarray,
-        preds: jnp.ndarray,
+        target: jax.Array,
+        preds: jax.Array,
         sample_weight: tp.Optional[
-            jnp.ndarray
+            jax.Array
         ] = None,  # not used, __call__ handles it, left for documentation purposes.
         **_,
-    ) -> jnp.ndarray:
+    ) -> jax.Array:
         """
         Invokes the `CosineSimilarity` instance.
 

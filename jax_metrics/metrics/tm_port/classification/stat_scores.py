@@ -4,7 +4,7 @@ import jax.numpy as jnp
 
 from jax_metrics import types
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 tensor = jnp.array
 from jax_metrics.metrics.tm_port.functional.classification.stat_scores import (
     _stat_scores_compute,

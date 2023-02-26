@@ -120,10 +120,10 @@ class Accuracy(SumMetric):
 
 
     """
-    tp: jnp.ndarray
-    fp: jnp.ndarray
-    tn: jnp.ndarray
-    fn: jnp.ndarray
+    tp: jax.Array
+    fp: jax.Array
+    tn: jax.Array
+    fn: jax.Array
 
     average: AverageMethod = static_field()
     mdmc_average: MDMCAverageMethod = static_field()
@@ -231,7 +231,7 @@ class Accuracy(SumMetric):
     def reset(self):
         return self.replace(**self._initial_values())
 
-    def update(self, preds: jnp.ndarray, target: jnp.ndarray, **_) -> "Accuracy":
+    def update(self, preds: jax.Array, target: jax.Array, **_) -> "Accuracy":
         """Updates Accuracy metric state.
 
         Example:
@@ -272,7 +272,7 @@ class Accuracy(SumMetric):
             fn=self.fn + fn,
         )
 
-    def compute(self) -> jnp.ndarray:
+    def compute(self) -> jax.Array:
         """
         Computes accuracy based on inputs passed in to `update` previously.
 

@@ -36,14 +36,14 @@ class L1L2(Loss):
         self.l1 = l1
         self.l2 = l2
 
-    def call(self, parameters: tp.Any, **_) -> jnp.ndarray:
+    def call(self, parameters: tp.Any, **_) -> jax.Array:
         """
         Computes the L1 and L2 regularization penalty simultaneously.
 
         Arguments:
             net_params: A structure with all the parameters of the model.
         """
-        regularization: jnp.ndarray = jnp.array(0.0)
+        regularization: jax.Array = jnp.array(0.0)
 
         if not self.l1 and not self.l2:
             return regularization

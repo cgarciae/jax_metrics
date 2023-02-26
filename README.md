@@ -46,9 +46,6 @@ import jax_metrics as jm
 
 metric = jm.metrics.Accuracy()
 
-# Initialize the metric
-metric = metric.init()
-
 # Update the metric with a batch of predictions and labels
 metric = metric.update(target=y, preds=logits)
 
@@ -72,11 +69,6 @@ Because Metrics are pytrees they can be used with `jit`, `pmap`, etc. On a more 
 import jax_metrics as jm
 
 metric = jm.metrics.Accuracy()
-
-@jax.jit
-def init_step(metric: jm.Metric) -> jm.Metric:
-    return metric.init()
-
 
 def loss_fn(params, metric, x, y):
     ...
@@ -158,8 +150,6 @@ metrics = jm.Metrics([
 ])
 
 # same API
-metrics = metrics.init()
-# same API
 metrics = metrics.update(target=y, preds=logits)
 # compute now returns a dict
 metrics.compute() # {'accuracy': 0.95, 'f1': 0.87}
@@ -179,8 +169,6 @@ metrics = jm.Metrics({
     "f_one": jm.metrics.F1(), # not yet implemented 😅, coming soon?
 })
 
-# same API
-metrics = metrics.init()
 # same API
 metrics = metrics.update(target=y, preds=logits)
 # compute new returns a dict
@@ -204,8 +192,6 @@ losses = jm.Losses([
 ])
 
 # same API
-losses = losses.init()
-# same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
 losses.compute() # {'crossentropy': 0.23, 'l2': 0.005}
@@ -224,17 +210,15 @@ If a dictionary is used instead of a list, the keys are used instead of the `nam
 ```python
 losses = jm.Losses({
     "xent": jm.losses.Crossentropy(),
-    "l_two": jm.regularizers.L2(1e-4),
+    "l2": jm.regularizers.L2(1e-4),
 })
 
 # same API
-losses = losses.init()
-# same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
-losses.compute() # {'xent': 0.23, 'l_two': 0.005}
+losses.compute() # {'xent': 0.23, 'l2': 0.005}
 # same as compute_logs in the case
-losses.compute_logs() # {'xent': 0.23, 'l_two': 0.005}
+losses.compute_logs() # {'xent': 0.23, 'l2': 0.005}
 # you can also compute the total loss
 loss = losses.total_loss() # 0.235
 # Reset the losses
