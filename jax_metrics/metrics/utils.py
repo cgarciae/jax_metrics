@@ -406,7 +406,6 @@ def _check_classification_inputs(
 
     # Check consistency with the `C` dimension in case of multi-class data
     if preds.shape != target.shape:
-
         if multiclass is False and implied_classes != 2:
             raise ValueError(
                 "You have set `multiclass=False`, but have more than 2 classes in your data,"
@@ -415,7 +414,6 @@ def _check_classification_inputs(
 
     # Check that num_classes is consistent
     if num_classes:
-
         if mode == DataType.BINARY:
             _check_num_classes_binary(num_classes, multiclass, implied_classes)
         elif mode == DataType.MULTICLASS:

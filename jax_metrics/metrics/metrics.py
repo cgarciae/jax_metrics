@@ -4,7 +4,7 @@ import typing as tp
 import jax
 import jax.numpy as jnp
 import numpy as np
-from simple_pytree import static_field, field
+from simple_pytree import field, static_field
 
 from jax_metrics import types, utils
 from jax_metrics.metrics.metric import Metric, SumMetric

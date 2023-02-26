@@ -26,7 +26,6 @@ def crossentropy(
     label_smoothing: tp.Optional[float] = None,
     check_bounds: bool = True,
 ) -> jnp.ndarray:
-
     n_classes = preds.shape[-1]
 
     if target.ndim == preds.ndim - 1:

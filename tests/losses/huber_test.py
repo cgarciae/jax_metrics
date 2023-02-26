@@ -13,7 +13,6 @@ import jax_metrics as jm
 
 
 def test_basic():
-
     target = jnp.array([[0, 1], [0, 0]])
     preds = jnp.array([[0.6, 0.4], [0.4, 0.6]])
 
@@ -40,7 +39,6 @@ def test_basic():
 
 
 def test_function():
-
     rng = jax.random.PRNGKey(42)
 
     target = jax.random.randint(rng, shape=(2, 3), minval=0, maxval=2)
@@ -108,7 +106,6 @@ def test_compatibility():
 
 
 if __name__ == "__main__":
-
     test_basic()
     test_function()
     test_compatibility()

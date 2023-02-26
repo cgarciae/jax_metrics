@@ -51,7 +51,6 @@ class Reduction(Enum):
 def reduce_loss(
     values: jnp.ndarray, sample_weight: tp.Optional[jnp.ndarray], weight, reduction
 ) -> jnp.ndarray:
-
     values = jnp.asarray(values)
 
     if sample_weight is not None:
@@ -125,7 +124,6 @@ class Loss(ABC):
         self,
         **kwargs,
     ) -> jnp.ndarray:
-
         sample_weight: tp.Optional[jnp.ndarray] = kwargs.pop("sample_weight", None)
 
         values = self.call(**kwargs)

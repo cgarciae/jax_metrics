@@ -4,7 +4,7 @@ from ast import Slice
 
 import jax
 import jax.numpy as jnp
-from simple_pytree import Pytree, static_field, field
+from simple_pytree import Pytree, field, static_field
 
 from jax_metrics import types, utils
 

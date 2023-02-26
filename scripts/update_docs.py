@@ -24,7 +24,6 @@ class MemberInfo:
 
 
 def getinfo(module: ModuleType, path: tp.Tuple[str, ...]) -> tp.Dict[str, tp.Any]:
-
     if not hasattr(module, "__all__"):
         return {}
 

@@ -10,7 +10,6 @@ import jax_metrics as jm
 
 class TestMAE:
     def test_mae_basic(self):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
@@ -26,7 +25,6 @@ class TestMAE:
     )
     @hp.settings(deadline=None, max_examples=10)
     def test_mae_weights_batch_dim(self, use_sample_weight):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
@@ -54,7 +52,6 @@ class TestMAE:
     )
     @hp.settings(deadline=None, max_examples=10)
     def test_mae_weights_values_dim(self, use_sample_weight):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 
@@ -71,7 +68,6 @@ class TestMAE:
         mae_tx = jm.metrics.MeanAbsoluteError().reset()
         mae_tm = tm.MeanAbsoluteError()
         for batch in range(2):
-
             target = np.random.randn(8, 5, 5)
             preds = np.random.randn(8, 5, 5)
 
@@ -84,7 +80,6 @@ class TestMAE:
         )
 
     def test_mae_short(self):
-
         target = np.random.randn(8, 20, 20)
         preds = np.random.randn(8, 20, 20)
 

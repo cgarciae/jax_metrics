@@ -4,7 +4,7 @@ import typing as tp
 
 import jax
 import pytest
-from simple_pytree import static_field, field
+from simple_pytree import field, static_field
 
 import jax_metrics as jm
 

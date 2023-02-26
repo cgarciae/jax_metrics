@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Union
-import jax
 
+import jax
 import jax.numpy as jnp
 from simple_pytree import static_field
 

@@ -1,7 +1,7 @@
 from typing import Any, Callable, Optional
 
 import jax.numpy as jnp
-from simple_pytree import static_field, field
+from simple_pytree import field, static_field
 
 from jax_metrics import types
 
