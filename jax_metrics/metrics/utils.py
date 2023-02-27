@@ -59,7 +59,7 @@ def _input_squeeze(
     return preds, target
 
 
-def _stat_scores_update(
+def stat_scores_update(
     preds: jax.Array,
     target: jax.Array,
     intended_mode: DataType,
@@ -652,7 +652,7 @@ def _check_top_k(
         )
 
 
-def _accuracy_compute(
+def accuracy_compute(
     tp: jax.Array,
     fp: jax.Array,
     tn: jax.Array,

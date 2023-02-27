@@ -43,7 +43,12 @@ pre-commit = ">=2.17.0"
 typer = ">=0.4.0"
 black = "23.1.0"
 isort = "5.12.0"
+ruff = "^0.0.252"
+
+[tool.ruff]
+line-length = 110
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+

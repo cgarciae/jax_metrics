@@ -1,12 +1,11 @@
 import typing as tp
 from abc import abstractmethod
-from ast import Slice
 
 import jax
 import jax.numpy as jnp
 from simple_pytree import Pytree, field, static_field
 
-from jax_metrics import types, utils
+from jax_metrics import types
 
 M = tp.TypeVar("M", bound="Metric")
 MA = tp.TypeVar("MA", bound="MapArgsMetric")
@@ -20,7 +19,7 @@ class Metric(Pytree):
     given up to that point.
     """
 
-    def __call__(self: M, **kwargs) -> tp.Tuple[tp.Any, M]:
+    def __call__(self: M, **kwargs: tp.Any) -> tp.Tuple[tp.Any, M]:
         metric: M = self
 
         batch_updates = metric.batch_updates(**kwargs)
@@ -41,11 +40,11 @@ class Metric(Pytree):
         ...
 
     @abstractmethod
-    def update(self: M, **kwargs) -> M:
+    def update(self: M, **kwargs: tp.Any) -> M:
         """
         Update the metric with the given data. Each metric accepts a different set of
-        keyword arguments and must accept other keyword arguments, even if they not used by
-        as remaining `**kwargs`.
+        keyword arguments and must accept other keyword arguments, even if they not used
+        by as remaining `**kwargs`.
 
         Arguments:
             **kwargs: data to update the metric with
@@ -100,9 +99,10 @@ class Metric(Pytree):
         # return jax.tree_map(lambda x, y: x + y, self, other)
         ...
 
-    def batch_updates(self: M, **kwargs) -> M:
+    def batch_updates(self: M, **kwargs: tp.Any) -> M:
         """
-        Compute metric updates for a batch of data. Equivalent to `.reset().update(**kwargs)`.
+        Compute metric updates for a batch of data. Equivalent to
+        `.reset().update(**kwargs)`.
 
         Arguments:
             kwargs: data to update the metric with
@@ -114,9 +114,9 @@ class Metric(Pytree):
 
     def index_into(self, **kwargs: types.IndexLike) -> "IndexedMetric":
         """
-        Returns a metric that "indexes" the specified keyword arguments expected by `.update()`.
-        You can index into nested structures such as combinations of lists, tuples, dicts, or
-        any other structure that supports indexing (`__getitem__`).
+        Returns a metric that "indexes" the specified keyword arguments expected by
+        `.update()`. You can index into nested structures such as combinations of lists,
+        tuples, dicts, or any other structure that supports indexing (`__getitem__`).
 
         Example:
 
@@ -186,9 +186,7 @@ class IndexedMetric(Metric):
     ):
         self.metric = metric
         self.arg_slice = {
-            key: tuple([index])
-            if not isinstance(index, (list, tuple))
-            else tuple(index)
+            key: (index,) if isinstance(index, (int, str)) else tuple(index)
             for key, index in arg_slice.items()
         }
 
@@ -198,10 +196,14 @@ class IndexedMetric(Metric):
     def reduce(self) -> "IndexedMetric":
         return self.replace(metric=self.metric.reduce())
 
-    def merge(self, other: "IndexedMetric") -> "IndexedMetric":
+    def merge(self, other: Metric) -> "IndexedMetric":
+        if not isinstance(other, IndexedMetric):
+            raise ValueError(
+                f"Can only merge IndexedMetric with IndexedMetric, got {type(other)}"
+            )
         return self.replace(metric=self.metric.merge(other.metric))
 
-    def update(self, **kwargs) -> "IndexedMetric":
+    def update(self, **kwargs: tp.Any) -> "IndexedMetric":
         # slice the arguments
         for key, slices in self.arg_slice.items():
             for index in slices:
@@ -218,16 +220,13 @@ class MapArgsMetric(Metric):
     args_map: tp.Dict[str, str] = static_field()
 
     def __init__(self, metric: Metric, args_map: tp.Dict[str, str]):
-        super().__init__(
-            name=metric.name,
-        )
         self.metric = metric
         self.args_map = args_map
 
     def reset(self: MA) -> MA:
         return self.replace(metric=self.metric.reset())
 
-    def update(self: MA, **kwargs) -> MA:
+    def update(self: MA, **kwargs: tp.Any) -> MA:
         for arg in self.args_map:
             if arg not in kwargs:
                 raise KeyError(f"'{arg}' expected but not given")

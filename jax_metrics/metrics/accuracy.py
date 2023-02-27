@@ -1,10 +1,9 @@
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import jax
 import jax.numpy as jnp
 from simple_pytree import static_field
 
-from jax_metrics import types
 from jax_metrics.metrics import utils as metric_utils
 from jax_metrics.metrics.metric import SumMetric
 from jax_metrics.metrics.utils import AverageMethod, DataType, MDMCAverageMethod
@@ -20,8 +19,8 @@ class Accuracy(SumMetric):
     Where :math:`y` is a tensor of target values, and :math:`\hat{y}` is a
     tensor of predictions.
 
-    For multi-class and multi-dimensional multi-class data with probability or logits predictions, the
-    parameter `top_k` generalizes this metric to a Top-K accuracy metric: for each sample the
+    For multi-class and multi-dimensional multi-class data with probability or logits predictions,
+    the parameter `top_k` generalizes this metric to a Top-K accuracy metric: for each sample the
     top-K highest probability or logit score items are considered to find the correct label.
 
     For multi-label and multi-dimensional multi-class inputs, this metric computes the "glob"
@@ -34,8 +33,9 @@ class Accuracy(SumMetric):
         num_classes:
             Number of classes. Necessary for `'macro'`, `'weighted'` and `None` average methods.
         threshold:
-            Threshold for transforming probability or logit predictions to binary (0,1) predictions, in the case
-            of binary or multi-label inputs. Default value of 0.5 corresponds to input being probabilities.
+            Threshold for transforming probability or logit predictions to binary (0,1) predictions,
+            in the case of binary or multi-label inputs. Default value of 0.5 corresponds to input
+            being probabilities.
         average:
             Defines the reduction that is applied. Should be one of the following:
 
@@ -172,10 +172,11 @@ class Accuracy(SumMetric):
 
         if average == AverageMethod.MACRO and (not num_classes or num_classes < 1):
             raise ValueError(
-                "When you set `reduce` as 'macro', you have to provide the number of classes."
+                "When you set `reduce` as 'macro', you have to provide the number of"
+                "classes."
             )
 
-        if top_k is not None and (not isinstance(top_k, int) or top_k <= 0):
+        if top_k is not None and top_k <= 0:
             raise ValueError(
                 f"The `top_k` should be an integer larger than 0, got {top_k}"
             )
@@ -186,7 +187,8 @@ class Accuracy(SumMetric):
             and (not 0 <= ignore_index < num_classes or num_classes == 1)
         ):
             raise ValueError(
-                f"The `ignore_index` {ignore_index} is not valid for inputs with {num_classes} classes"
+                f"The `ignore_index` {ignore_index} is not valid for inputs "
+                "with {num_classes} classes"
             )
 
         # Update states
@@ -212,9 +214,14 @@ class Accuracy(SumMetric):
 
     def _initial_values(self) -> Dict[str, jax.Array]:
         # nodes
+        zeros_shape: List[int]
         if self.average == AverageMethod.MICRO:
             zeros_shape = []
         elif self.average == AverageMethod.MACRO:
+            if self.num_classes is None:
+                raise ValueError(
+                    "The `num_classes` parameter must be defined to use `average='macro'`."
+                )
             zeros_shape = [self.num_classes]
         else:
             raise ValueError(f'Wrong reduce="{self.average}"')
@@ -231,7 +238,7 @@ class Accuracy(SumMetric):
     def reset(self):
         return self.replace(**self._initial_values())
 
-    def update(self, preds: jax.Array, target: jax.Array, **_) -> "Accuracy":
+    def update(self, *, preds: jax.Array, target: jax.Array, **_) -> "Accuracy":
         """Updates Accuracy metric state.
 
         Example:
@@ -248,12 +255,8 @@ class Accuracy(SumMetric):
         Returns:
             Updated Accuracy instance
         """
-        if self.tp is None or self.fp is None or self.tn is None or self.fn is None:
-            raise ValueError(
-                "Accuracy metric has not been initialized, call 'reset()' first."
-            )
 
-        tp, fp, tn, fn = metric_utils._stat_scores_update(
+        tp, fp, tn, fn = metric_utils.stat_scores_update(
             preds,
             target,
             intended_mode=self.mode,
@@ -281,12 +284,8 @@ class Accuracy(SumMetric):
         """
         # if self.mode is None:
         #     raise RuntimeError("You have to have determined mode.")
-        if self.tp is None or self.fp is None or self.tn is None or self.fn is None:
-            raise ValueError(
-                "Accuracy metric has not been initialized, call 'reset()' first."
-            )
 
-        return metric_utils._accuracy_compute(
+        return metric_utils.accuracy_compute(
             self.tp,
             self.fp,
             self.tn,
