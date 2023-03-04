@@ -140,5 +140,5 @@ class Reduce(SumMetric):
         else:
             return self.total / self.count
 
-    def from_argument(self, argument: str) -> RenameArguments:
+    def from_argument(self: M, argument: str) -> RenameArguments[M]:
         return self.rename_arguments(values=argument)

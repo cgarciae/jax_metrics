@@ -3,7 +3,7 @@ import typing as tp
 import jax
 import jax.numpy as jnp
 
-from jax_metrics import types, utils
+from jax_metrics import types
 from jax_metrics.losses.loss import Loss, Reduction
 
 

@@ -9,7 +9,6 @@ from simple_pytree import Pytree, field, static_field
 from jax_metrics import types
 
 M = tp.TypeVar("M", bound="Metric")
-MA = tp.TypeVar("MA", bound="RenameArguments")
 Slice = tp.Tuple[tp.Union[int, str], ...]
 
 
@@ -146,7 +145,7 @@ class Metric(Pytree):
         """
         return IndexedMetric(self, kwargs)
 
-    def rename_arguments(self, **kwargs: str) -> "RenameArguments":
+    def rename_arguments(self: M, **kwargs: str) -> "RenameArguments[M]":
         """
         Returns a metric that renames the keyword arguments expected by `.update()`.
 
@@ -221,14 +220,14 @@ Expected = str
 
 
 @dataclasses.dataclass
-class RenameArguments(Metric):
-    metric: Metric = field()
+class RenameArguments(tp.Generic[M], Metric):
+    metric: M = field()
     real_to_expected: tp.Dict[Real, Expected] = static_field()
 
-    def reset(self: MA) -> MA:
+    def reset(self) -> "RenameArguments[M]":
         return self.replace(metric=self.metric.reset())
 
-    def update(self, **updates: tp.Any) -> "RenameArguments":
+    def update(self, **updates: tp.Any) -> "RenameArguments[M]":
         for expected in self.real_to_expected.values():
             if expected not in updates:
                 raise KeyError(f"'{expected}' expected but not given")
@@ -245,3 +244,17 @@ class RenameArguments(Metric):
 
     def compute(self) -> tp.Any:
         return self.metric.compute()
+
+    def merge(self: "RenameArguments[M]", other: Metric) -> "RenameArguments[M]":
+        if not isinstance(other, RenameArguments):
+            raise ValueError(
+                f"Can only merge RenameArguments with RenameArguments, got {type(other)}"
+            )
+        elif not isinstance(other.metric, type(self.metric)):
+            raise ValueError(
+                f"Can only merge RenameArguments with metric of same type, got {type(other.metric)}"
+            )
+        return self.replace(metric=self.metric.merge(other.metric))
+
+    def reduce(self: "RenameArguments[M]") -> "RenameArguments[M]":
+        return self.replace(metric=self.metric.reduce())

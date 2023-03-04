@@ -7,10 +7,8 @@ from enum import Enum
 
 import jax
 import jax.numpy as jnp
-import numpy as np
-from numpy.lib.arraysetops import isin
 
-from jax_metrics import types, utils
+from jax_metrics import types
 
 Slice = tp.Tuple[tp.Union[int, str], ...]
 MA = tp.TypeVar("MA", bound="MapArgsLoss")
