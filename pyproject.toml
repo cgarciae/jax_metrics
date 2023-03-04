@@ -34,7 +34,7 @@ scipy = "!=1.10.1" #cannot install 1.10.1 for some reason
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = ">=1.2.3"
-mkdocstrings = ">=0.18.0"
+mkdocstrings = {version = ">=0.20.0", extras = ["python"]}
 mkdocs-material = ">=8.2.1"
 mkdocs-jupyter = ">=0.20.0"
 

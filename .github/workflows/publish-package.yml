@@ -43,7 +43,7 @@ jobs:
       - name: Build Docs 🔨
         run: |
           cp README.md docs/index.md
-          mkdocs build
+          poetry run mkdocs build
         
       - name: Deploy Page 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.6
