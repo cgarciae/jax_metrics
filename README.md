@@ -1,3 +1,6 @@
+<!-- codecov badge -->
+[![codecov](https://codecov.io/gh/cgarciae/jax_metrics/branch/main/graph/badge.svg?token=3IKEUAU3C8)](https://codecov.io/gh/cgarciae/jax_metrics)
+
 # JAX Metrics
 
 _A Metrics library for the JAX ecosystem_
@@ -15,7 +18,7 @@ JAX Metrics is implemented on top of [Treeo](https://github.com/cgarciae/treeo).
 * The Keras-like `Loss` and `Metric` abstractions.
 * A `metrics` module containing popular metrics.
 * The `losses` and `regularizers` modules containing popular losses.
-* The `Metrics`, `Losses`, and `LossesAndMetrics` combinators.
+* The `Metrics` and `Losses` combinators.
 
 <!-- ## Why JAX Metrics? -->
 
@@ -46,9 +49,6 @@ import jax_metrics as jm
 
 metric = jm.metrics.Accuracy()
 
-# Initialize the metric
-metric = metric.init()
-
 # Update the metric with a batch of predictions and labels
 metric = metric.update(target=y, preds=logits)
 
@@ -72,11 +72,6 @@ Because Metrics are pytrees they can be used with `jit`, `pmap`, etc. On a more 
 import jax_metrics as jm
 
 metric = jm.metrics.Accuracy()
-
-@jax.jit
-def init_step(metric: jm.Metric) -> jm.Metric:
-    return metric.init()
-
 
 def loss_fn(params, metric, x, y):
     ...
@@ -102,21 +97,21 @@ Since the loss function usually has access to the predictions and labels, its us
 
 #### Distributed Training
 
-JAX Metrics has a distributed friendly API via the `batch_updates` and `aggregate` methods. A simple example of a loss function inside a data parallel setup could look like this:
+JAX Metrics has a distributed friendly API via the `batch_updates` and `reduce` methods. A simple example of a loss function inside a data parallel setup could look like this:
 
 ```python
 def loss_fn(params, metric, x, y):
     ...
     # compuate batch update
     batch_updates = metric.batch_updates(target=y, preds=logits)
-    # gather over all devices and aggregate
-    batch_updates = jax.lax.all_gather(batch_updates, "device").aggregate()
+    # gather over all devices and reduce
+    batch_updates = jax.lax.all_gather(batch_updates, "device").reduce()
     # update metric
     metric = metric.merge(batch_updates)
     ...
 ```
 
-The `batch_updates` method behaves similar to `update` but returns a new metric state with only information about that batch, `jax.lax.all_gather` "gathers" the metric state over all devices plus adds a new axis to the metric state, and `aggregate` reduces the metric state over all devices (first axis). Finally, `merge` combines the accumulated metric state over the previous batches with the batch updates.
+The `batch_updates` method behaves similar to `update` but returns a new metric state with only information about that batch, `jax.lax.all_gather` "gathers" the metric state over all devices plus adds a new axis to the metric state, and `reduce` reduces the metric state over all devices (first axis). Finally, `merge` combines the accumulated metric state over the previous batches with the batch updates.
 
 ### Loss
 
@@ -142,7 +137,7 @@ There are a few reasons for having losses in a metrics library:
 2. A couple of API design decisions are shared between the `Loss` and `Metric` APIs. This includes: 
     * `__call__` and `update` both accept any number keyword only arguments. This is used to facilitate composition (see [Combinators](#combinators) section).
     * Both classes have the `index_into` and `map_arg` methods that allow them to modify how arguments are consumed.
-    * Argument names are standardized to be consistent when ever possible, e.g. both `metrics.Accuracy` and `losses.Crossentropy` use the `target` and `preds` arguments. This is super convenient for the `LossesAndMetrics` combinator.
+    * Argument names are standardized to be consistent when ever possible, e.g. both `metrics.Accuracy` and `losses.Crossentropy` use the `target` and `preds` arguments.
 
 </details>
 
@@ -157,8 +152,6 @@ metrics = jm.Metrics([
     jm.metrics.F1(), # not yet implemented 😅, coming soon?
 ])
 
-# same API
-metrics = metrics.init()
 # same API
 metrics = metrics.update(target=y, preds=logits)
 # compute now returns a dict
@@ -179,8 +172,6 @@ metrics = jm.Metrics({
     "f_one": jm.metrics.F1(), # not yet implemented 😅, coming soon?
 })
 
-# same API
-metrics = metrics.init()
 # same API
 metrics = metrics.update(target=y, preds=logits)
 # compute new returns a dict
@@ -204,8 +195,6 @@ losses = jm.Losses([
 ])
 
 # same API
-losses = losses.init()
-# same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
 losses.compute() # {'crossentropy': 0.23, 'l2': 0.005}
@@ -224,17 +213,15 @@ If a dictionary is used instead of a list, the keys are used instead of the `nam
 ```python
 losses = jm.Losses({
     "xent": jm.losses.Crossentropy(),
-    "l_two": jm.regularizers.L2(1e-4),
+    "l2": jm.regularizers.L2(1e-4),
 })
 
 # same API
-losses = losses.init()
-# same API
 losses = losses.update(target=y, preds=logits, parameters=params)
 # compute new returns a dict
-losses.compute() # {'xent': 0.23, 'l_two': 0.005}
+losses.compute() # {'xent': 0.23, 'l2': 0.005}
 # same as compute_logs in the case
-losses.compute_logs() # {'xent': 0.23, 'l_two': 0.005}
+losses.compute_logs() # {'xent': 0.23, 'l2': 0.005}
 # you can also compute the total loss
 loss = losses.total_loss() # 0.235
 # Reset the losses
@@ -259,79 +246,4 @@ def loss_fn(...):
     loss, lossses = losses.loss_and_update(target=y, preds=logits, parameters=params)
     ...
     return loss, losses
-```
-#### LossesAndMetrics
-
-The `LossesAndMetrics` combinator is a `Metric` that combines the `Lossses` and `Metrics` combinators. Its main utility instead of using these independently is that it can computes a single logs dictionary while making sure that names/keys remain unique in case of collisions.
-
-```python
-losses_and_metrics = jm.LossesAndMetrics(
-    metrics=[
-        jm.metrics.Accuracy(),
-        jm.metrics.F1(), # not yet implemented 😅, coming soon?
-    ],
-    losses=[
-        jm.losses.Crossentropy(),
-        jm.regularizers.L2(1e-4),
-    ],
-)
-
-# same API
-losses_and_metrics = losses_and_metrics.init()
-# same API
-losses_and_metrics = losses_and_metrics.update(
-    target=y, preds=logits, parameters=params
-)
-# compute new returns a dict
-losses_and_metrics.compute() # {'loss': 0.235, 'accuracy': 0.95, 'f1': 0.87, 'crossentropy': 0.23, 'l2': 0.005}
-# same as compute_logs in the case
-losses_and_metrics.compute_logs() # {'loss': 0.235, 'accuracy': 0.95, 'f1': 0.87, 'crossentropy': 0.23, 'l2': 0.005}
-# you can also compute the total loss
-loss = losses_and_metrics.total_loss() # 0.235
-# Reset metrics 
-losses_and_metrics = losses_and_metrics.reset()
-```
-
-Thanks to consistent naming, `Accuracy`, `F1` and `Crossentropy` all consume the same `target` and `preds` arguments, while `L2` consumes `parameters`. For convenience a `"loss"` key is added to the returned logs dictionary.
-
-If you want to use `LossesAndMetrics` to calculate the loss of a model, you should use `batch_updates` followed by `total_loss` to get the correct batch loss. For example, a loss function could be written as:
-
-```python
-def loss_fn(...):
-    ...
-    batch_updates = losses_and_metrics.batch_updates(
-        target=y, preds=logits, parameters=params
-    )
-    loss = batch_updates.total_loss()
-    losses_and_metrics = losses_and_metrics.merge(batch_updates)
-    ...
-    return loss, losses_and_metrics
-```
-
-For convenience, the previous pattern can be simplified to a single line using the `loss_and_update` method:
-
-```python
-def loss_fn(...):
-    ...
-    loss, losses_and_metrics = losses_and_metrics.loss_and_update(
-        target=y, preds=logits, parameters=params
-    )
-    ...
-    return loss, losses_and_metrics
-```
-
-If the loss function is running in a distributed context (e.g. `pmap`) you can calculate the device-local loss and synchronize the metric state across devices like this:
-
-
-```python
-def loss_fn(...):
-    ...
-    batch_updates = losses_and_metrics.batch_updates(
-        target=y, preds=logits, parameters=params
-    )
-    loss = batch_updates.total_loss()
-    batch_updates = jax.lax.all_gather(batch_updates, "device").aggregate()
-    losses_and_metrics = losses_and_metrics.merge(batch_updates)
-    ...
-    return loss, losses_and_metrics
 ```

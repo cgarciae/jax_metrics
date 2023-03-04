@@ -4,10 +4,10 @@ import typing as tp
 import jax
 import jax.numpy as jnp
 import numpy as np
-import treeo as to
+from simple_pytree import field, static_field
 
 from jax_metrics import types
-from jax_metrics.metrics.metric import Metric
+from jax_metrics.metrics.metric import Metric, SumMetric
 
 M = tp.TypeVar("M", bound="Reduce")
 
@@ -18,26 +18,34 @@ class Reduction(enum.Enum):
     weighted_mean = enum.auto()
 
 
-class Reduce(Metric):
+class Reduce(SumMetric):
     """Encapsulates metrics that perform a reduce operation on the values."""
 
-    total: tp.Optional[jnp.ndarray] = to.node()
-    count: tp.Optional[jnp.ndarray] = to.node()
+    total: jax.Array
+    count: tp.Optional[jax.Array]
+    reduction: Reduction = static_field()
+    dtype: jnp.dtype = static_field()
 
     def __init__(
         self,
         reduction: tp.Union[Reduction, str],
-        name: tp.Optional[str] = None,
         dtype: tp.Optional[jnp.dtype] = None,
     ):
-        super().__init__(name=name, dtype=dtype)
+        """
+        Creates a `Reduce` instance.
+
+        Arguments:
+            reduction: (Optional) The reduction to apply to the metric values.
+                Defaults to `SUM_OVER_BATCH_SIZE`.
+            dtype: (Optional) data type of the metric result. Defaults to `float32`.
+        """
         self.reduction = (
             reduction if isinstance(reduction, Reduction) else Reduction[reduction]
         )
-        self.total = None
-        self.count = None
+        self.dtype = dtype or jnp.float32
+        self.__dict__.update(self._initial_values())
 
-    def reset(self: M) -> M:
+    def _initial_values(self) -> tp.Dict[str, tp.Any]:
         # initialize states
         total = jnp.array(0.0, dtype=self.dtype)
 
@@ -49,12 +57,20 @@ class Reduce(Metric):
         else:
             count = None
 
-        return self.replace(total=total, count=count)
+        return dict(total=total, count=count)
+
+    def reset(self: M) -> M:
+        """
+        Resets all of the metric state variables.
+        Returns:
+            An instance of `Reduce`.
+        """
+        return self.replace(**self._initial_values())
 
     def update(
         self: M,
-        values: jnp.ndarray,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        values: jax.Array,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
     ) -> M:
         """
@@ -121,7 +137,7 @@ class Reduce(Metric):
 
         return self.replace(total=total, count=count)
 
-    def compute(self) -> jnp.ndarray:
+    def compute(self) -> jax.Array:
         if self.total is None:
             raise self._not_initialized_error()
 

@@ -19,7 +19,7 @@ class TestAccuracy:
             N += 1
             return m.update(target=target, preds=preds)
 
-        metric = Accuracy(num_classes=10).reset()
+        metric = Accuracy(num_classes=10)
         target = jnp.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])[None, None, None, :]
         preds = jnp.array([0, 1, 2, 3, 0, 5, 6, 7, 0, 9])[None, None, None, :]
 
@@ -40,7 +40,7 @@ class TestAccuracy:
             N += 1
             return m.update(target=target, preds=preds)
 
-        metric = Accuracy().reset()
+        metric = Accuracy()
         target = jnp.array([0, 0, 1, 1, 1])
         preds = jnp.array(
             [

@@ -47,9 +47,9 @@ class MDMCAverageMethod(enum.Enum):
 
 
 def _input_squeeze(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
-) -> tp.Tuple[jnp.ndarray, jnp.ndarray]:
+    preds: jax.Array,
+    target: jax.Array,
+) -> tp.Tuple[jax.Array, jax.Array]:
     """Remove excess dimensions."""
     if preds.shape[0] == 1:
         preds = jnp.expand_dims(preds.squeeze(), axis=0)
@@ -59,9 +59,9 @@ def _input_squeeze(
     return preds, target
 
 
-def _stat_scores_update(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+def stat_scores_update(
+    preds: jax.Array,
+    target: jax.Array,
     intended_mode: DataType,
     average_method: AverageMethod = AverageMethod.MICRO,
     mdmc_average_method: tp.Optional[MDMCAverageMethod] = None,
@@ -69,7 +69,7 @@ def _stat_scores_update(
     top_k: tp.Optional[int] = None,
     threshold: float = 0.5,
     multiclass: tp.Optional[bool] = None,
-) -> tp.Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+) -> tp.Tuple[jax.Array, jax.Array, jax.Array, jax.Array]:
     """Updates and returns the the number of true positives, false positives, true negatives, false negatives.
     Raises ValueError if:
 
@@ -130,10 +130,10 @@ def _stat_scores_update(
 
 
 def _stat_scores(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+    preds: jax.Array,
+    target: jax.Array,
     reduce: tp.Optional[AverageMethod] = AverageMethod.MICRO,
-) -> tp.Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+) -> tp.Tuple[jax.Array, jax.Array, jax.Array, jax.Array]:
     """Calculate the number of tp, fp, tn, fn.
 
     Args:
@@ -184,14 +184,14 @@ def _stat_scores(
 
 
 def _input_format_classification(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+    preds: jax.Array,
+    target: jax.Array,
     mode: DataType,
     threshold: float = 0.5,
     top_k: tp.Optional[int] = None,
     num_classes: tp.Optional[int] = None,
     multiclass: tp.Optional[bool] = None,
-) -> tp.Tuple[jnp.ndarray, jnp.ndarray, DataType]:
+) -> tp.Tuple[jax.Array, jax.Array, DataType]:
     """Convert preds and target tensors into common format.
 
     Preds and targets are supposed to fall into one of these categories (and are
@@ -245,8 +245,8 @@ def _input_format_classification(
         target.
 
     Args:
-        preds: jnp.ndarray with predictions (target or probabilities)
-        target: jnp.ndarray with ground truth target, always integers (target)
+        preds: jax.Array with predictions (target or probabilities)
+        target: jax.Array with ground truth target, always integers (target)
         threshold:
             Threshold value for transforming probability/logit predictions to binary
             (0 or 1) predictions, in the case of binary or multi-label inputs.
@@ -328,8 +328,8 @@ def _input_format_classification(
 
 
 def _check_classification_inputs(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+    preds: jax.Array,
+    target: jax.Array,
     threshold: float,
     num_classes: tp.Optional[int],
     multiclass: tp.Optional[bool],
@@ -360,8 +360,8 @@ def _check_classification_inputs(
     greater than 1, except perhaps the first one (``N``).
 
     Args:
-        preds: jnp.ndarray with predictions (target or probabilities)
-        target: jnp.ndarray with ground truth target, always integers (target)
+        preds: jax.Array with predictions (target or probabilities)
+        target: jax.Array with ground truth target, always integers (target)
         threshold:
             Threshold value for transforming probability/logit predictions to binary
             (0,1) predictions, in the case of binary or multi-label inputs.
@@ -406,7 +406,6 @@ def _check_classification_inputs(
 
     # Check consistency with the `C` dimension in case of multi-class data
     if preds.shape != target.shape:
-
         if multiclass is False and implied_classes != 2:
             raise ValueError(
                 "You have set `multiclass=False`, but have more than 2 classes in your data,"
@@ -415,7 +414,6 @@ def _check_classification_inputs(
 
     # Check that num_classes is consistent
     if num_classes:
-
         if mode == DataType.BINARY:
             _check_num_classes_binary(num_classes, multiclass, implied_classes)
         elif mode == DataType.MULTICLASS:
@@ -437,8 +435,8 @@ def _check_classification_inputs(
 
 
 def _basic_input_validation(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+    preds: jax.Array,
+    target: jax.Array,
     threshold: float,
     multiclass: tp.Optional[bool],
 ) -> None:
@@ -469,13 +467,13 @@ def _basic_input_validation(
         )
 
 
-def _is_floating_point(x: jnp.ndarray) -> bool:
+def _is_floating_point(x: jax.Array) -> bool:
     """Check if the input is a floating point tensor."""
     return x.dtype == jnp.float16 or x.dtype == jnp.float32 or x.dtype == jnp.float64
 
 
 def _check_shape_and_type_consistency(
-    preds: jnp.ndarray, target: jnp.ndarray, mode: DataType
+    preds: jax.Array, target: jax.Array, mode: DataType
 ) -> None:
     """This checks that the shape and type of inputs are consistent with each other and fall into one of the
     allowed input types (see the documentation of docstring of ``_input_format_classification``). It does not check
@@ -542,7 +540,7 @@ def _check_num_classes_binary(
         )
 
 
-def select_topk(prob_tensor: jnp.ndarray, topk: int = 1, dim: int = 1) -> jnp.ndarray:
+def select_topk(prob_tensor: jax.Array, topk: int = 1, dim: int = 1) -> jax.Array:
     """Convert a probability tensor to binary by selecting top-k highest entries.
 
     Args:
@@ -574,8 +572,8 @@ def select_topk(prob_tensor: jnp.ndarray, topk: int = 1, dim: int = 1) -> jnp.nd
 
 
 def _check_num_classes_mc(
-    preds: jnp.ndarray,
-    target: jnp.ndarray,
+    preds: jax.Array,
+    target: jax.Array,
     num_classes: int,
     multiclass: tp.Optional[bool],
     implied_classes: tp.Optional[int],
@@ -654,15 +652,15 @@ def _check_top_k(
         )
 
 
-def _accuracy_compute(
-    tp: jnp.ndarray,
-    fp: jnp.ndarray,
-    tn: jnp.ndarray,
-    fn: jnp.ndarray,
+def accuracy_compute(
+    tp: jax.Array,
+    fp: jax.Array,
+    tn: jax.Array,
+    fn: jax.Array,
     average: tp.Optional[AverageMethod],
     mdmc_average: tp.Optional[MDMCAverageMethod],
     mode: DataType,
-) -> jnp.ndarray:
+) -> jax.Array:
     """Computes accuracy from stat scores: true positives, false positives, true negatives, false negatives.
 
     Args:
@@ -748,13 +746,13 @@ def _accuracy_compute(
 
 
 def _reduce_stat_scores(
-    numerator: jnp.ndarray,
-    denominator: jnp.ndarray,
-    weights: tp.Optional[jnp.ndarray],
+    numerator: jax.Array,
+    denominator: jax.Array,
+    weights: tp.Optional[jax.Array],
     average: tp.Optional[AverageMethod],
     mdmc_average: tp.Optional[MDMCAverageMethod],
     zero_division: int = 0,
-) -> jnp.ndarray:
+) -> jax.Array:
     """Reduces scores of type ``numerator/denominator`` or.
 
     ``weights * (numerator/denominator)``, if ``average='weighted'``.

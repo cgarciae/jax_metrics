@@ -25,7 +25,6 @@ class TestCrossentropy:
     )
     @hp.settings(deadline=None, max_examples=10)
     def test_compatibility(self, mode, from_logits):
-
         binary = mode == Mode.BINARY
 
         TFClass = (

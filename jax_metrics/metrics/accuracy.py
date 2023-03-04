@@ -1,16 +1,15 @@
-import typing
-import typing as tp
+from typing import Dict, List, Optional, Union
 
+import jax
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import static_field
 
-from jax_metrics import types
 from jax_metrics.metrics import utils as metric_utils
-from jax_metrics.metrics.metric import Metric
+from jax_metrics.metrics.metric import SumMetric
 from jax_metrics.metrics.utils import AverageMethod, DataType, MDMCAverageMethod
 
 
-class Accuracy(Metric):
+class Accuracy(SumMetric):
     r"""
     Computes Accuracy, ported from [torchmetrics](https://github.com/PytorchLightning/metrics).
 
@@ -20,8 +19,8 @@ class Accuracy(Metric):
     Where :math:`y` is a tensor of target values, and :math:`\hat{y}` is a
     tensor of predictions.
 
-    For multi-class and multi-dimensional multi-class data with probability or logits predictions, the
-    parameter `top_k` generalizes this metric to a Top-K accuracy metric: for each sample the
+    For multi-class and multi-dimensional multi-class data with probability or logits predictions,
+    the parameter `top_k` generalizes this metric to a Top-K accuracy metric: for each sample the
     top-K highest probability or logit score items are considered to find the correct label.
 
     For multi-label and multi-dimensional multi-class inputs, this metric computes the "glob"
@@ -34,8 +33,9 @@ class Accuracy(Metric):
         num_classes:
             Number of classes. Necessary for `'macro'`, `'weighted'` and `None` average methods.
         threshold:
-            Threshold for transforming probability or logit predictions to binary (0,1) predictions, in the case
-            of binary or multi-label inputs. Default value of 0.5 corresponds to input being probabilities.
+            Threshold for transforming probability or logit predictions to binary (0,1) predictions,
+            in the case of binary or multi-label inputs. Default value of 0.5 corresponds to input
+            being probabilities.
         average:
             Defines the reduction that is applied. Should be one of the following:
 
@@ -120,32 +120,37 @@ class Accuracy(Metric):
 
 
     """
-    tp: typing.Optional[jnp.ndarray] = to.node()
-    fp: typing.Optional[jnp.ndarray] = to.node()
-    tn: typing.Optional[jnp.ndarray] = to.node()
-    fn: typing.Optional[jnp.ndarray] = to.node()
+    tp: jax.Array
+    fp: jax.Array
+    tn: jax.Array
+    fn: jax.Array
+
+    average: AverageMethod = static_field()
+    mdmc_average: MDMCAverageMethod = static_field()
+    num_classes: Optional[int] = static_field()
+    threshold: float = static_field()
+    multiclass: Optional[bool] = static_field()
+    ignore_index: Optional[int] = static_field()
+    top_k: Optional[int] = static_field()
+    subset_accuracy: bool = static_field()
+    mode: DataType = static_field()
 
     def __init__(
         self,
         threshold: float = 0.5,
-        num_classes: typing.Optional[int] = None,
-        average: typing.Union[str, AverageMethod] = AverageMethod.MICRO,
-        mdmc_average: typing.Union[str, MDMCAverageMethod] = MDMCAverageMethod.GLOBAL,
-        ignore_index: typing.Optional[int] = None,
-        top_k: typing.Optional[int] = None,
-        multiclass: typing.Optional[bool] = None,
+        num_classes: Optional[int] = None,
+        average: Union[str, AverageMethod] = AverageMethod.MICRO,
+        mdmc_average: Union[str, MDMCAverageMethod] = MDMCAverageMethod.GLOBAL,
+        ignore_index: Optional[int] = None,
+        top_k: Optional[int] = None,
+        multiclass: Optional[bool] = None,
         subset_accuracy: bool = False,
         # compute_on_step: bool = True,
         # dist_sync_on_step: bool = False,
-        # process_group: typing.Optional[typing.Any] = None,
-        # dist_sync_fn: typing.Callable = None,
+        # process_group: Optional[Any] = None,
+        # dist_sync_fn: Callable = None,
         mode: DataType = DataType.MULTICLASS,
-        name: typing.Optional[str] = None,
-        dtype: typing.Optional[jnp.dtype] = None,
     ):
-
-        super().__init__(name=name, dtype=dtype)
-
         if isinstance(average, str):
             average = AverageMethod[average.upper()]
 
@@ -167,10 +172,11 @@ class Accuracy(Metric):
 
         if average == AverageMethod.MACRO and (not num_classes or num_classes < 1):
             raise ValueError(
-                "When you set `reduce` as 'macro', you have to provide the number of classes."
+                "When you set `reduce` as 'macro', you have to provide the number of"
+                "classes."
             )
 
-        if top_k is not None and (not isinstance(top_k, int) or top_k <= 0):
+        if top_k is not None and top_k <= 0:
             raise ValueError(
                 f"The `top_k` should be an integer larger than 0, got {top_k}"
             )
@@ -181,7 +187,8 @@ class Accuracy(Metric):
             and (not 0 <= ignore_index < num_classes or num_classes == 1)
         ):
             raise ValueError(
-                f"The `ignore_index` {ignore_index} is not valid for inputs with {num_classes} classes"
+                f"The `ignore_index` {ignore_index} is not valid for inputs "
+                "with {num_classes} classes"
             )
 
         # Update states
@@ -203,30 +210,35 @@ class Accuracy(Metric):
         self.subset_accuracy = subset_accuracy
         self.mode = mode
 
-        self.tp = None
-        self.fp = None
-        self.tn = None
-        self.fn = None
+        self.__dict__.update(self._initial_values())
 
-    def reset(self) -> "Accuracy":
+    def _initial_values(self) -> Dict[str, jax.Array]:
         # nodes
+        zeros_shape: List[int]
         if self.average == AverageMethod.MICRO:
             zeros_shape = []
         elif self.average == AverageMethod.MACRO:
+            if self.num_classes is None:
+                raise ValueError(
+                    "The `num_classes` parameter must be defined to use `average='macro'`."
+                )
             zeros_shape = [self.num_classes]
         else:
             raise ValueError(f'Wrong reduce="{self.average}"')
 
         initial_value = jnp.zeros(zeros_shape, dtype=jnp.uint32)
 
-        return self.replace(
+        return dict(
             tp=initial_value,
             fp=initial_value,
             tn=initial_value,
             fn=initial_value,
         )
 
-    def update(self, preds: jnp.ndarray, target: jnp.ndarray, **_) -> "Accuracy":
+    def reset(self):
+        return self.replace(**self._initial_values())
+
+    def update(self, *, preds: jax.Array, target: jax.Array, **_) -> "Accuracy":
         """Updates Accuracy metric state.
 
         Example:
@@ -243,12 +255,8 @@ class Accuracy(Metric):
         Returns:
             Updated Accuracy instance
         """
-        if self.tp is None or self.fp is None or self.tn is None or self.fn is None:
-            raise ValueError(
-                "Accuracy metric has not been initialized, call 'reset()' first."
-            )
 
-        tp, fp, tn, fn = metric_utils._stat_scores_update(
+        tp, fp, tn, fn = metric_utils.stat_scores_update(
             preds,
             target,
             intended_mode=self.mode,
@@ -267,7 +275,7 @@ class Accuracy(Metric):
             fn=self.fn + fn,
         )
 
-    def compute(self) -> jnp.ndarray:
+    def compute(self) -> jax.Array:
         """
         Computes accuracy based on inputs passed in to `update` previously.
 
@@ -276,12 +284,8 @@ class Accuracy(Metric):
         """
         # if self.mode is None:
         #     raise RuntimeError("You have to have determined mode.")
-        if self.tp is None or self.fp is None or self.tn is None or self.fn is None:
-            raise ValueError(
-                "Accuracy metric has not been initialized, call 'reset()' first."
-            )
 
-        return metric_utils._accuracy_compute(
+        return metric_utils.accuracy_compute(
             self.tp,
             self.fp,
             self.tn,

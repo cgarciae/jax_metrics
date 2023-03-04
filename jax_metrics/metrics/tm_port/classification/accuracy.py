@@ -1,11 +1,11 @@
 from typing import Any, Callable, Optional
 
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import field, static_field
 
 from jax_metrics import types
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 tensor = jnp.array
 
 from jax_metrics.metrics.tm_port.classification.stat_scores import StatScores
@@ -157,8 +157,8 @@ class Accuracy(StatScores):
 
     """
     mode: Optional[DataType]
-    correct: Tensor = to.node()
-    total: Tensor = to.node()
+    correct: Tensor = field()
+    total: Tensor = field()
 
     is_differentiable = False
 

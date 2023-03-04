@@ -1,12 +1,13 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types, utils
 from jax_metrics.losses.loss import Loss, Reduction
 
 
-def mean_absolute_error(target: jnp.ndarray, preds: jnp.ndarray) -> jnp.ndarray:
+def mean_absolute_error(target: jax.Array, preds: jax.Array) -> jax.Array:
     """
     Computes the mean absolute error between target and predictions.
 
@@ -86,34 +87,15 @@ class MeanAbsoluteError(Loss):
     ```
     """
 
-    def __init__(
-        self,
-        reduction: tp.Optional[Reduction] = None,
-        weight: tp.Optional[float] = None,
-        **kwargs,
-    ):
-        """
-        Initializes `Mean` class.
-
-        Arguments:
-            reduction: (Optional) Type of `jm.losses.Reduction` to apply to
-                loss. Default value is `SUM_OVER_BATCH_SIZE`. For almost all cases
-                this defaults to `SUM_OVER_BATCH_SIZE`.
-            weight: Optional weight contribution for the total loss. Defaults to `1`.
-
-        """
-
-        return super().__init__(reduction=reduction, weight=weight, **kwargs)
-
     def call(
         self,
-        target: jnp.ndarray,
-        preds: jnp.ndarray,
+        target: jax.Array,
+        preds: jax.Array,
         sample_weight: tp.Optional[
-            jnp.ndarray
+            jax.Array
         ] = None,  # not used, __call__ handles it, left for documentation purposes.
         **_,
-    ) -> jnp.ndarray:
+    ) -> jax.Array:
         """
         Invokes the `MeanAbsoluteError` instance.
 

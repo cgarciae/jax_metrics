@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 import jax.numpy as jnp
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 tensor = jnp.array
 
 from jax_metrics.metrics.tm_port.functional.classification.stat_scores import (

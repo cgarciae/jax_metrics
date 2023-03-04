@@ -1,39 +1,25 @@
 import typing as tp
 from abc import abstractmethod
-from ast import Slice
 
 import jax
 import jax.numpy as jnp
-import treeo as to
+from simple_pytree import Pytree, field, static_field
 
-from jax_metrics import types, utils
+from jax_metrics import types
 
 M = tp.TypeVar("M", bound="Metric")
 MA = tp.TypeVar("MA", bound="MapArgsMetric")
 Slice = tp.Tuple[tp.Union[int, str], ...]
 
 
-class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immutable):
+class Metric(Pytree):
     """
     Encapsulates metric logic and state. Metrics accumulate state between calls such
     that their output value reflect the metric as if calculated on the whole data
     given up to that point.
     """
 
-    def __init__(
-        self,
-        name: tp.Optional[str] = None,
-        dtype: tp.Optional[jnp.dtype] = None,
-    ):
-        """
-        name: name of the metric
-        dtype: dtype of the metric
-        """
-
-        self.name = name if name is not None else utils._get_name(self)
-        self.dtype = dtype if dtype is not None else jnp.float32
-
-    def __call__(self: M, **kwargs) -> tp.Tuple[tp.Any, M]:
+    def __call__(self: M, **kwargs: tp.Any) -> tp.Tuple[tp.Any, M]:
         metric: M = self
 
         batch_updates = metric.batch_updates(**kwargs)
@@ -42,12 +28,6 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         metric = metric.merge(batch_updates)
 
         return batch_values, metric
-
-    def init(self: M) -> M:
-        """
-        Initialize the metric's state.
-        """
-        return self.reset()
 
     @abstractmethod
     def reset(self: M) -> M:
@@ -60,11 +40,11 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         ...
 
     @abstractmethod
-    def update(self: M, **kwargs) -> M:
+    def update(self: M, **kwargs: tp.Any) -> M:
         """
         Update the metric with the given data. Each metric accepts a different set of
-        keyword arguments and must accept other keyword arguments, even if they not used by
-        as remaining `**kwargs`.
+        keyword arguments and must accept other keyword arguments, even if they not used
+        by as remaining `**kwargs`.
 
         Arguments:
             **kwargs: data to update the metric with
@@ -81,29 +61,8 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         """
         ...
 
-    def compute_logs(self) -> tp.Dict[str, jnp.ndarray]:
-        """
-        Compute the current metric value(s) and returns it/them
-        in a `{metric_name: metric_value}` dictionary.
-
-        Returns:
-            A dictionary of metric values
-        """
-        return {self.name: self.compute()}
-
-    def batch_updates(self: M, **kwargs) -> M:
-        """
-        Compute metric updates for a batch of data. Equivalent to `.reset().update(**kwargs)`.
-
-        Arguments:
-            kwargs: data to update the metric with
-
-        Returns:
-            Metric with updated state
-        """
-        return self.reset().update(**kwargs)
-
-    def aggregate(self: M) -> M:
+    @abstractmethod
+    def reduce(self: M) -> M:
         """
         Aggregate metric state. It assumes the metric's internal state has an additional
         'device' dimension on the 0th axis.
@@ -113,7 +72,7 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         ```python
         batch_updates = metric.batch_updates(**kwargs)
         batch_updates = jax.lax.all_gather(batch_updates, axis_name="device")
-        batch_updates = batch_updates.aggregate()
+        batch_updates = batch_updates.reduce()
 
         metric = metric.merge(batch_updates)
         ```
@@ -121,8 +80,10 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         Returns:
             Metric with aggregated state
         """
-        return jax.tree_map(lambda x: jnp.sum(x, axis=0), self)
+        # return jax.tree_map(lambda x: jnp.sum(x, axis=0), self)
+        ...
 
+    @abstractmethod
     def merge(self: M, other: M) -> M:
         """
         Merge the state of two metrics of the same type. Usually used to merge
@@ -135,14 +96,27 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         metric = metric.merge(batch_updates)
         ```
         """
-        stacked = jax.tree_map(lambda *xs: jnp.stack(xs), self, other)
-        return stacked.aggregate()
+        # return jax.tree_map(lambda x, y: x + y, self, other)
+        ...
+
+    def batch_updates(self: M, **kwargs: tp.Any) -> M:
+        """
+        Compute metric updates for a batch of data. Equivalent to
+        `.reset().update(**kwargs)`.
+
+        Arguments:
+            kwargs: data to update the metric with
+
+        Returns:
+            Metric with updated state
+        """
+        return self.reset().update(**kwargs)
 
     def index_into(self, **kwargs: types.IndexLike) -> "IndexedMetric":
         """
-        Returns a metric that "indexes" the specified keyword arguments expected by `.update()`.
-        You can index into nested structures such as combinations of lists, tuples, dicts, or
-        any other structure that supports indexing (`__getitem__`).
+        Returns a metric that "indexes" the specified keyword arguments expected by
+        `.update()`. You can index into nested structures such as combinations of lists,
+        tuples, dicts, or any other structure that supports indexing (`__getitem__`).
 
         Example:
 
@@ -192,35 +166,44 @@ class Metric(to.Tree, to.Copy, to.ToString, to.ToDict, to.Repr, to.Map, to.Immut
         """
         return MapArgsMetric(self, kwargs)
 
-    def _not_initialized_error(self):
-        return ValueError(
-            f"Metric '{self.name}' has not been initialized, call 'reset()' first"
-        )
+
+class SumMetric(Metric):
+    def merge(self: M, other: M) -> M:
+        return jax.tree_map(lambda x, y: x + y, self, other)
+
+    def reduce(self: M) -> M:
+        return jax.tree_map(lambda x: jnp.sum(x, axis=0), self)
 
 
 class IndexedMetric(Metric):
-    arg_slice: tp.Dict[str, Slice]
-    metric: Metric = to.node()
+    metric: Metric = field()
+    arg_slice: tp.Dict[str, Slice] = static_field()
 
     def __init__(
         self,
         metric: Metric,
         arg_slice: tp.Dict[str, types.IndexLike],
     ):
-        super().__init__(name=metric.name, dtype=metric.dtype)
         self.metric = metric
         self.arg_slice = {
-            key: tuple([index])
-            if not isinstance(index, (list, tuple))
-            else tuple(index)
+            key: (index,) if isinstance(index, (int, str)) else tuple(index)
             for key, index in arg_slice.items()
         }
 
     def reset(self) -> "IndexedMetric":
         return self.replace(metric=self.metric.reset())
 
-    def update(self, **kwargs) -> "IndexedMetric":
+    def reduce(self) -> "IndexedMetric":
+        return self.replace(metric=self.metric.reduce())
 
+    def merge(self, other: Metric) -> "IndexedMetric":
+        if not isinstance(other, IndexedMetric):
+            raise ValueError(
+                f"Can only merge IndexedMetric with IndexedMetric, got {type(other)}"
+            )
+        return self.replace(metric=self.metric.merge(other.metric))
+
+    def update(self, **kwargs: tp.Any) -> "IndexedMetric":
         # slice the arguments
         for key, slices in self.arg_slice.items():
             for index in slices:
@@ -233,21 +216,17 @@ class IndexedMetric(Metric):
 
 
 class MapArgsMetric(Metric):
-    metric: Metric = to.node()
-    args_map: tp.Dict[str, str] = to.static()
+    metric: Metric = field()
+    args_map: tp.Dict[str, str] = static_field()
 
     def __init__(self, metric: Metric, args_map: tp.Dict[str, str]):
-        super().__init__(
-            name=metric.name,
-        )
         self.metric = metric
         self.args_map = args_map
 
     def reset(self: MA) -> MA:
         return self.replace(metric=self.metric.reset())
 
-    def update(self: MA, **kwargs) -> MA:
-
+    def update(self: MA, **kwargs: tp.Any) -> MA:
         for arg in self.args_map:
             if arg not in kwargs:
                 raise KeyError(f"'{arg}' expected but not given")

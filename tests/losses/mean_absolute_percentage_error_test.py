@@ -40,7 +40,6 @@ class MeanAbsolutePercentageErrorTest(TestCase):
 
     #
     def test_function(self):
-
         target = jnp.array([[1.0, 1.0], [0.9, 0.0]])
         preds = jnp.array([[1.0, 1.0], [1.0, 0.0]])
 

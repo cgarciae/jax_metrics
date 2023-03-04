@@ -2,7 +2,7 @@ from typing import Any, List, Optional, Tuple, Union, cast
 
 import jax.numpy as jnp
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 
 from jax_metrics.metrics.tm_port.utilities.checks import _input_format_classification
 from jax_metrics.metrics.tm_port.utilities.enums import AverageMethod, MDMCAverageMethod

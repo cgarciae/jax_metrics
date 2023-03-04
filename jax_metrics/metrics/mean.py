@@ -1,5 +1,6 @@
 import typing as tp
 
+import jax
 import jax.numpy as jnp
 
 from jax_metrics import types
@@ -45,24 +46,21 @@ class Mean(Reduce):
 
     def __init__(
         self,
-        name: tp.Optional[str] = None,
         dtype: tp.Optional[jnp.dtype] = None,
     ):
         """Creates a `Mean` instance.
         Arguments:
-
-            kwargs: Additional keyword arguments passed to Module.
+            dtype: (Optional) data type of the metric result. Defaults to `float32`.
         """
         super().__init__(
             reduction=Reduction.weighted_mean,
-            name=name,
             dtype=dtype,
         )
 
     def update(
         self: M,
-        values: jnp.ndarray,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        values: jax.Array,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
     ) -> M:
         """

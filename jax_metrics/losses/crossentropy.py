@@ -9,24 +9,23 @@ from jax_metrics.losses.loss import Loss, Reduction
 
 
 def smooth_labels(
-    target: jnp.ndarray,
-    smoothing: jnp.ndarray,
-) -> jnp.ndarray:
+    target: jax.Array,
+    smoothing: jax.Array,
+) -> jax.Array:
     smooth_positives = 1.0 - smoothing
     smooth_negatives = smoothing / target.shape[-1]
     return smooth_positives * target + smooth_negatives
 
 
 def crossentropy(
-    target: jnp.ndarray,
-    preds: jnp.ndarray,
+    target: jax.Array,
+    preds: jax.Array,
     *,
     binary: bool = False,
     from_logits: bool = True,
     label_smoothing: tp.Optional[float] = None,
     check_bounds: bool = True,
-) -> jnp.ndarray:
-
+) -> jax.Array:
     n_classes = preds.shape[-1]
 
     if target.ndim == preds.ndim - 1:
@@ -132,7 +131,6 @@ class Crossentropy(Loss):
         label_smoothing: tp.Optional[float] = None,
         reduction: tp.Optional[Reduction] = None,
         weight: tp.Optional[float] = None,
-        name: tp.Optional[str] = None,
     ):
         """
         Initializes `SparseCategoricalCrossentropy` instance.
@@ -146,7 +144,7 @@ class Crossentropy(Loss):
                 this defaults to `SUM_OVER_BATCH_SIZE`.
             weight: Optional weight contribution for the total loss. Defaults to `1`.
         """
-        super().__init__(reduction=reduction, weight=weight, name=name)
+        super().__init__(reduction=reduction, weight=weight)
 
         self._from_logits = from_logits
         self._binary = binary
@@ -156,9 +154,9 @@ class Crossentropy(Loss):
         self,
         target,
         preds,
-        sample_weight: tp.Optional[jnp.ndarray] = None,
+        sample_weight: tp.Optional[jax.Array] = None,
         **_,
-    ) -> jnp.ndarray:
+    ) -> jax.Array:
         """
         Invokes the `SparseCategoricalCrossentropy` instance.
 

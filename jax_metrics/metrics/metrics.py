@@ -1,44 +1,21 @@
+import dataclasses
 import typing as tp
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-import treeo as to
+from simple_pytree import field, static_field
 
 from jax_metrics import types, utils
-from jax_metrics.metrics.metric import Metric
+from jax_metrics.metrics.metric import Metric, SumMetric
 
 M = tp.TypeVar("M", bound="Metrics")
 A = tp.TypeVar("A", bound="AuxMetrics")
 
 
+@dataclasses.dataclass
 class Metrics(Metric):
     metrics: tp.Dict[str, Metric]
-
-    def __init__(
-        self,
-        metrics: tp.Any,
-        name: tp.Optional[str] = None,
-        dtype: tp.Optional[jnp.dtype] = None,
-    ):
-        super().__init__(name=name, dtype=dtype)
-
-        names: tp.Set[str] = set()
-
-        def get_name(path, metric, parent_iterable):
-            name = utils._get_name(metric)
-            if path:
-                if parent_iterable:
-                    return f"{path}/{name}"
-                else:
-                    return path
-            else:
-                return name
-
-        self.metrics = {
-            utils._unique_name(names, get_name(path, metric, parent_iterable)): metric
-            for path, metric, parent_iterable in utils._flatten_names(metrics)
-        }
 
     def reset(self: M) -> M:
         metrics = {name: metric.reset() for name, metric in self.metrics.items()}
@@ -61,12 +38,11 @@ class Metrics(Metric):
         }
         return self.replace(metrics=metrics)
 
-    def compute(self) -> tp.Dict[str, jnp.ndarray]:
+    def compute(self) -> tp.Dict[str, jax.Array]:
         outputs = {}
         names = set()
 
         for name, metric in self.metrics.items():
-
             value = metric.compute()
 
             for path, value, parent_iterable in utils._flatten_names(value):
@@ -82,46 +58,45 @@ class Metrics(Metric):
 
         return outputs
 
-    def __call__(self: M, **kwargs) -> tp.Tuple[tp.Dict[str, jnp.ndarray], M]:
-        return super().__call__(**kwargs)
-
     def slice(self, **kwargs: types.IndexLike) -> "Metrics":
         metrics = {
             name: metric.index_into(**kwargs) for name, metric in self.metrics.items()
         }
         return self.replace(metrics=metrics)
 
+    def merge(self: M, other: M) -> M:
+        return type(self)(
+            metrics={
+                name: metric.merge(other.metrics[name])
+                for name, metric in self.metrics.items()
+            }
+        )
 
-class AuxMetrics(Metric):
-    totals: tp.Optional[tp.Dict[str, jnp.ndarray]] = to.node()
-    counts: tp.Optional[tp.Dict[str, jnp.ndarray]] = to.node()
-    names: tp.Optional[tp.Tuple[str, ...]] = to.static()
+    def reduce(self: M) -> M:
+        return type(self)(
+            metrics={name: metric.reduce() for name, metric in self.metrics.items()}
+        )
 
-    def __init__(
-        self,
-        name: tp.Optional[str] = None,
-        dtype: tp.Optional[jnp.dtype] = None,
-    ):
-        super().__init__(name=name, dtype=dtype)
-        self.totals = None
-        self.counts = None
-        self.names = None
 
-    def init(self: A, aux_values: tp.Dict[str, jnp.ndarray]) -> A:
-        names = tuple(aux_values.keys())
-        return self.replace(names=names).reset()
+class AuxMetrics(SumMetric):
+    totals: tp.Optional[tp.Dict[str, jax.Array]] = field()
+    counts: tp.Optional[tp.Dict[str, jax.Array]] = field()
+    names: tp.Tuple[str, ...] = static_field()
 
-    def reset(self: A) -> A:
-        if self.names is None:
-            raise ValueError("AuxMetrics not initialized, call `init()` first")
+    def __init__(self, names: tp.Iterable[str]):
+        self.names = tuple(names)
+        self.__dict__.update(self._initial_values())
 
+    def _initial_values(self: A) -> tp.Dict[str, tp.Any]:
         totals = {name: jnp.array(0.0, dtype=jnp.float32) for name in self.names}
         counts = {name: jnp.array(0, dtype=jnp.uint32) for name in self.names}
 
-        return self.replace(totals=totals, counts=counts)
+        return dict(totals=totals, counts=counts)
 
-    def update(self: A, aux_values: tp.Dict[str, jnp.ndarray], **_) -> A:
+    def reset(self: A) -> A:
+        return self.replace(**self._initial_values())
 
+    def update(self: A, aux_values: tp.Dict[str, jax.Array], **_) -> A:
         if self.totals is None or self.counts is None:
             raise ValueError("AuxMetrics not initialized, call 'reset()' first")
 
@@ -138,14 +113,14 @@ class AuxMetrics(Metric):
 
         return self.replace(totals=totals, counts=counts)
 
-    def compute(self) -> tp.Dict[str, jnp.ndarray]:
+    def compute(self) -> tp.Dict[str, jax.Array]:
         if self.totals is None or self.counts is None:
             raise ValueError("AuxMetrics not initialized, call `reset()` first")
 
         return {name: self.totals[name] / self.counts[name] for name in self.totals}
 
-    def compute_logs(self) -> tp.Dict[str, jnp.ndarray]:
+    def compute_logs(self) -> tp.Dict[str, jax.Array]:
         return self.compute()
 
-    def __call__(self: A, aux_values: tp.Any) -> tp.Tuple[tp.Dict[str, jnp.ndarray], A]:
+    def __call__(self: A, aux_values: tp.Any) -> tp.Tuple[tp.Dict[str, jax.Array], A]:
         return super().__call__(aux_values=aux_values)

@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 from jax._src.lax.lax import top_k
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 tensor = jnp.array
 
 from jax_metrics.metrics.tm_port.utilities.prints import rank_zero_warn

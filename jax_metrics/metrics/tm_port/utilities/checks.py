@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 from numpy import uint32
 
-Tensor = jnp.ndarray
+Tensor = jax.Array
 
 from jax_metrics.metrics.tm_port.utilities.data import select_topk, to_onehot
 from jax_metrics.metrics.tm_port.utilities.enums import DataType
