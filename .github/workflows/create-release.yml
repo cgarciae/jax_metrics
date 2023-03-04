@@ -57,20 +57,11 @@ jobs:
           # delete branch
           git push -d origin ${{ github.ref_name }}
         
-      - name: Build Changelog
-        id: github_release
-        uses: mikepenz/release-changelog-builder-action@v2.9.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          toTag: ${{ steps.setup.outputs.RELEASE_VERSION }}
-
       - name: Create Release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.setup.outputs.RELEASE_VERSION }}
           release_name: ${{ steps.setup.outputs.RELEASE_VERSION }}
-          body: ${{ steps.github_release.outputs.changelog }}
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
