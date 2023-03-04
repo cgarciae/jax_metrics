@@ -1,5 +1,5 @@
 <!-- codecov badge -->
-[![codecov](https://codecov.io/gh/cgarciae/jax_metrics/branch/main/graph/badge.svg?token=3IKEUAU3C8)](https://codecov.io/gh/cgarciae/jax_metrics)
+[![codecov](https://codecov.io/gh/cgarciae/jax_metrics/branch/master/graph/badge.svg?token=3IKEUAU3C8)](https://codecov.io/gh/cgarciae/jax_metrics)
 
 # JAX Metrics
 
