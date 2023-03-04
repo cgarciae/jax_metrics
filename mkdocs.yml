@@ -10,6 +10,7 @@ nav:
     Metric: api/Metric.md
     Metrics: api/Metrics.md
     Named: api/Named.md
+    SumMetric: api/SumMetric.md
     losses:
       CosineSimilarity: api/losses/CosineSimilarity.md
       Crossentropy: api/losses/Crossentropy.md
@@ -40,6 +41,7 @@ nav:
       Metrics: api/metrics/Metrics.md
       Reduce: api/metrics/Reduce.md
       Reduction: api/metrics/Reduction.md
+      SumMetric: api/metrics/SumMetric.md
     regularizers:
       L1: api/regularizers/L1.md
       L1L2: api/regularizers/L1L2.md
