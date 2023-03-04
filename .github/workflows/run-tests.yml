@@ -31,7 +31,7 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.3
         with:
-          version: 1.3.2
+          version: 1.4.0
 
       - name: Setup Poetry
         run: |
@@ -79,7 +79,7 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.3
         with:
-          version: 1.3.2
+          version: 1.4.0
       
       - name: Setup Poetry
         run: |
@@ -95,11 +95,11 @@ jobs:
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          poetry install --no-dev
+          poetry install --only main
 
       - name: Install Package
         run: |
-          poetry install --no-dev
+          poetry install --only main
         
       - name: Test Import
         run: |
