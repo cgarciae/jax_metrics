@@ -4,17 +4,8 @@ import jax
 import jax.numpy as jnp
 import optax
 
-from jax_metrics import types, utils
+from jax_metrics import types
 from jax_metrics.losses.loss import Loss, Reduction
-
-
-def smooth_labels(
-    target: jax.Array,
-    smoothing: jax.Array,
-) -> jax.Array:
-    smooth_positives = 1.0 - smoothing
-    smooth_negatives = smoothing / target.shape[-1]
-    return smooth_positives * target + smooth_negatives
 
 
 def crossentropy(
@@ -27,42 +18,42 @@ def crossentropy(
     check_bounds: bool = True,
 ) -> jax.Array:
     n_classes = preds.shape[-1]
+    integer_labels = False
 
     if target.ndim == preds.ndim - 1:
         if target.shape != preds.shape[:-1]:
             raise ValueError(
                 f"Target shape '{target.shape}' does not match preds shape '{preds.shape}'"
             )
-        target = jax.nn.one_hot(target, n_classes)
-    else:
-        if target.ndim != preds.ndim:
-            raise ValueError(
-                f"Target shape '{target.shape}' does not match preds shape '{preds.shape}'"
-            )
+        if label_smoothing is not None or not from_logits:
+            target = jax.nn.one_hot(target, n_classes)
+        else:
+            integer_labels = True
+    elif target.ndim != preds.ndim:
+        raise ValueError(
+            f"Target shape '{target.shape}' does not match preds shape '{preds.shape}'"
+        )
 
     if label_smoothing is not None:
         target = optax.smooth_labels(target, label_smoothing)
 
+    loss: jax.Array
     if from_logits:
         if binary:
             loss = optax.sigmoid_binary_cross_entropy(preds, target).mean(axis=-1)
+        elif integer_labels:
+            loss = optax.softmax_cross_entropy_with_integer_labels(preds, target)
         else:
             loss = optax.softmax_cross_entropy(preds, target)
     else:
         preds = jnp.clip(preds, types.EPSILON, 1.0 - types.EPSILON)
 
         if binary:
-            loss = target * jnp.log(preds)  # + types.EPSILON)
-            loss += (1 - target) * jnp.log(1 - preds)  # + types.EPSILON)
-            loss = -loss.mean(axis=-1)
+            loss = -jnp.mean(
+                target * jnp.log(preds) + (1 - target) * jnp.log(1 - preds), axis=-1
+            )
         else:
             loss = -(target * jnp.log(preds)).sum(axis=-1)
-
-    # TODO: implement check_bounds
-    # if check_bounds:
-    #     # set NaN where target is negative or larger/equal to the number of preds channels
-    #     loss = jnp.where(target < 0, jnp.nan, loss)
-    #     loss = jnp.where(target >= n_classes, jnp.nan, loss)
 
     return loss
 

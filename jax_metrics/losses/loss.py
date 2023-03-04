@@ -166,14 +166,14 @@ class Loss(ABC):
         """
         return IndexedLoss(self, kwargs)
 
-    def map_arg(self, **kwargs: str) -> "MapArgsLoss":
+    def rename_arguments(self, **kwargs: str) -> "MapArgsLoss":
         """
         Returns a loss  that renames the keyword arguments expected by `__call__`.
 
         Example:
 
         ```python
-        crossentropy_loss = jm.losses.Crossentropy().map_arg(target="y_true", preds="y_pred")
+        crossentropy_loss = jm.losses.Crossentropy().rename_arguments(target="y_true", preds="y_pred")
         ...
         loss = crossentropy_loss(y_true=y, y_pred=logits)
         ```

@@ -131,7 +131,7 @@ There are a few reasons for having losses in a metrics library:
 1. Most code from this library was originally written for and will still be consumed by Elegy. Since Elegy needs support for calculating cumulative losses, as you will see later, a Metric abstraction called `Losses` was created for this.
 2. A couple of API design decisions are shared between the `Loss` and `Metric` APIs. This includes: 
     * `__call__` and `update` both accept any number keyword only arguments. This is used to facilitate composition (see [Combinators](#combinators) section).
-    * Both classes have the `index_into` and `map_arg` methods that allow them to modify how arguments are consumed.
+    * Both classes have the `index_into` and `rename_arguments` methods that allow them to modify how arguments are consumed.
     * Argument names are standardized to be consistent when ever possible, e.g. both `metrics.Accuracy` and `losses.Crossentropy` use the `target` and `preds` arguments.
 
 </details>

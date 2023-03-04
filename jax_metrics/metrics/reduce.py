@@ -7,7 +7,7 @@ import numpy as np
 from simple_pytree import field, static_field
 
 from jax_metrics import types
-from jax_metrics.metrics.metric import Metric, SumMetric
+from jax_metrics.metrics.metric import Metric, RenameArguments, SumMetric
 
 M = tp.TypeVar("M", bound="Reduce")
 
@@ -86,9 +86,6 @@ class Reduce(SumMetric):
             Array with the cumulative reduce.
         """
 
-        if self.total is None:
-            raise self._not_initialized_error()
-
         # perform update
         if sample_weight is not None:
             if sample_weight.ndim > values.ndim:
@@ -138,10 +135,10 @@ class Reduce(SumMetric):
         return self.replace(total=total, count=count)
 
     def compute(self) -> jax.Array:
-        if self.total is None:
-            raise self._not_initialized_error()
-
         if self.reduction == Reduction.sum:
             return self.total
         else:
             return self.total / self.count
+
+    def from_argument(self, argument: str) -> RenameArguments:
+        return self.rename_arguments(values=argument)

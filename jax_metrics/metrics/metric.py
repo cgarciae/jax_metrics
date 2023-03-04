@@ -1,3 +1,4 @@
+import dataclasses
 import typing as tp
 from abc import abstractmethod
 
@@ -8,7 +9,7 @@ from simple_pytree import Pytree, field, static_field
 from jax_metrics import types
 
 M = tp.TypeVar("M", bound="Metric")
-MA = tp.TypeVar("MA", bound="MapArgsMetric")
+MA = tp.TypeVar("MA", bound="RenameArguments")
 Slice = tp.Tuple[tp.Union[int, str], ...]
 
 
@@ -145,14 +146,14 @@ class Metric(Pytree):
         """
         return IndexedMetric(self, kwargs)
 
-    def map_arg(self, **kwargs: str) -> "MapArgsMetric":
+    def rename_arguments(self, **kwargs: str) -> "RenameArguments":
         """
         Returns a metric that renames the keyword arguments expected by `.update()`.
 
         Example:
 
         ```python
-        mean = jm.metrics.Mean().map_arg(values="loss").reset()
+        mean = jm.metrics.Mean().rename_arguments(values="loss")
         ...
         loss = loss_fn(x, y)
         mean = mean.update(loss=loss)
@@ -162,9 +163,9 @@ class Metric(Pytree):
             **kwargs: keyword arguments to be renamed
 
         Returns:
-            A MapArgsMetric instance
+            A RenameArguments instance
         """
-        return MapArgsMetric(self, kwargs)
+        return RenameArguments(self, kwargs)
 
 
 class SumMetric(Metric):
@@ -215,34 +216,32 @@ class IndexedMetric(Metric):
         return self.metric.compute()
 
 
-class MapArgsMetric(Metric):
-    metric: Metric = field()
-    args_map: tp.Dict[str, str] = static_field()
+Real = str
+Expected = str
 
-    def __init__(self, metric: Metric, args_map: tp.Dict[str, str]):
-        self.metric = metric
-        self.args_map = args_map
+
+@dataclasses.dataclass
+class RenameArguments(Metric):
+    metric: Metric = field()
+    real_to_expected: tp.Dict[Real, Expected] = static_field()
 
     def reset(self: MA) -> MA:
         return self.replace(metric=self.metric.reset())
 
-    def update(self: MA, **kwargs: tp.Any) -> MA:
-        for arg in self.args_map:
-            if arg not in kwargs:
-                raise KeyError(f"'{arg}' expected but not given")
-
-        kwarg_updates = {
-            next_arg: kwargs[prev_arg] for prev_arg, next_arg in self.args_map.items()
-        }
-
-        # delete previous kwargs
-        for arg in self.args_map:
-            del kwargs[arg]
+    def update(self, **updates: tp.Any) -> "RenameArguments":
+        for expected in self.real_to_expected.values():
+            if expected not in updates:
+                raise KeyError(f"'{expected}' expected but not given")
 
         # add new kwargs
-        kwargs.update(kwarg_updates)
+        updates.update(
+            {
+                real: updates[expected]
+                for real, expected in self.real_to_expected.items()
+            }
+        )
 
-        return self.replace(metric=self.metric.update(**kwargs))
+        return self.replace(metric=self.metric.update(**updates))
 
     def compute(self) -> tp.Any:
         return self.metric.compute()
