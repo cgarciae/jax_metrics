@@ -14,7 +14,7 @@ url = "https://download.pytorch.org/whl/cpu/"
 secondary = true
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = "^3.8"
 einops = ">=0.4.0"
 # simple_pytree = { path = "../simple-pytree", develop = true }
 simple_pytree = ">=0.1.3"
